@@ -15,6 +15,7 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import TestAuth from './pages/TestAuth';
+import PublisherDashboard from './pages/PublisherDashboard';
 
 // Auth listener component
 import { AuthListener } from './components/Auth';
@@ -159,6 +160,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/test-auth" element={<TestAuth />} />
+            <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
           </Routes>
         </MainLayout>
       </Router>

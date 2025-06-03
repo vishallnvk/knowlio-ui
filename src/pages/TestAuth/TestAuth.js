@@ -7,6 +7,8 @@ import {
   Paper,
   Alert,
   Stack,
+  TextField,
+  FormControl
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Hub } from 'aws-amplify/utils';
@@ -18,6 +20,7 @@ import { Hub } from 'aws-amplify/utils';
 function TestAuth() {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('userEmail') || '');
 
   /**
    * Simulate successful user login
@@ -27,12 +30,19 @@ function TestAuth() {
     // Simulate successful login
     setMessage('Simulating login...');
     
-    // Create mock user data
+    // Use entered email or default if empty
+    const email = userEmail.trim() || 'user@example.com';
+    // Save to localStorage for future use
+    localStorage.setItem('userEmail', email);
+    const userName = email.split('@')[0];
+    
+    // Create mock user data with actual email
     const mockUser = {
-      username: 'testuser@example.com',
+      username: userEmail, 
       attributes: {
-        email: 'testuser@example.com',
-        name: 'Test User'
+        email: userEmail,
+        name: userName.charAt(0).toUpperCase() + userName.slice(1), // Capitalize first letter
+        given_name: userName.charAt(0).toUpperCase() + userName.slice(1)
       }
     };
     
@@ -42,9 +52,9 @@ function TestAuth() {
     // Emit auth event to trigger UI updates
     Hub.dispatch('auth', { event: 'signedIn', data: {} });
     
-    // Navigate to dashboard after brief delay
+    // Navigate to publisher dashboard after brief delay
     setTimeout(() => {
-      navigate('/dashboard');
+      navigate('/publisher-dashboard');
     }, 1000);
   };
 
@@ -102,10 +112,24 @@ function TestAuth() {
             </Alert>
           )}
 
+          <Box sx={{ mt: 3, mb: 4 }}>
+            <FormControl fullWidth>
+              <TextField
+                label="Your Email Address"
+                variant="outlined"
+                type="email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                placeholder="Enter your email for the mock login"
+                helperText="This will be used to display your name after login"
+                sx={{ mb: 1 }}
+              />
+            </FormControl>
+          </Box>
+
           <Stack 
             direction="column" 
             spacing={2} 
-            sx={{ mt: 4 }}
           >
             <Button
               variant="contained"
@@ -132,9 +156,9 @@ function TestAuth() {
             </Typography>
             <Typography variant="body2" component="ul" sx={{ pl: 2 }}>
               <li>Click "Simulate Login" to mock a successful authentication</li>
-              <li>Navigation bar should update to show "Hi, Test User!"</li>
-              <li>You'll be redirected to the Dashboard page</li>
-              <li>Dashboard will show user information</li>
+              <li>Navigation bar should update to show your first name</li>
+              <li>You'll be redirected to the Publisher Dashboard page</li>
+              <li>Publisher Dashboard will show your content library</li>
               <li>Logout button in navigation will redirect to homepage</li>
             </Typography>
           </Box>

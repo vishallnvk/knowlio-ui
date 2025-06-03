@@ -18,7 +18,7 @@ function AuthListener() {
           break;
         case 'signInWithRedirect_success':
           console.log('OAuth sign in success');
-          navigate('/dashboard');
+          navigate('/publisher-dashboard');
           break;
         case 'signInWithRedirect_failure':
           console.log('OAuth sign in failed');

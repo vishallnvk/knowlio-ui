@@ -24,6 +24,7 @@ const navigationItems = [
   { name: 'About', path: '/about' },
   { name: 'Contact', path: '/contact' },
   { name: 'TestAuth', path: '/test-auth' },
+  { name: 'Publisher Dashboard', path: '/publisher-dashboard' },
 ];
 
 /**
@@ -170,10 +171,36 @@ function Navigation() {
 
   // Get user display name from available attributes
   const getUserDisplayName = () => {
-    return userAttributes?.email || 
-           userAttributes?.name?.split('@')[0] || 
-           user?.username?.split('@')[0] || 
-           'User';
+    // For Google login, extract real name from userAttributes
+    if (userAttributes?.name) {
+      // If full name present, return just first name
+      return userAttributes.name.split(' ')[0];
+    } 
+    
+    // For email login, try to get name from email username
+    if (userAttributes?.email) {
+      return userAttributes.email.split('@')[0];
+    }
+    
+    // For google ID format (Google_123456789), extract just first name if possible
+    if (user?.username && user.username.includes('Google_')) {
+      if (userAttributes?.given_name) {
+        return userAttributes.given_name;
+      }
+      // If all else fails, return cleaner username from Google login
+      return "User";
+    }
+    
+    // Fallback to username without domain if available
+    if (user?.username) {
+      if (user.username.includes('@')) {
+        return user.username.split('@')[0];
+      }
+      return user.username;
+    }
+    
+    // Final fallback
+    return 'User';
   };
 
   return (
@@ -317,8 +344,8 @@ function Navigation() {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  <MenuItem onClick={() => { navigate('/dashboard'); handleCloseUserMenu(); }}>
-                    <Typography textAlign="center">Dashboard</Typography>
+                  <MenuItem onClick={() => { navigate('/publisher-dashboard'); handleCloseUserMenu(); }}>
+                    <Typography textAlign="center">Publisher Dashboard</Typography>
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
                     <Typography textAlign="center">Logout</Typography>
