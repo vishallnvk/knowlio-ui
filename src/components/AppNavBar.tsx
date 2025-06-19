@@ -19,6 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
+import ArticleIcon from '@mui/icons-material/Article';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
@@ -37,6 +38,7 @@ export function AppNavBar() {
 
   const navLinks = [
     { label: 'Dashboard', href: '/dashboard', icon: <DashboardIcon /> },
+    { label: 'License', href: '/license', icon: <ArticleIcon /> },
     { label: 'Profile', href: '/profile', icon: <PersonIcon /> },
     { label: 'About', href: '/about', icon: <InfoIcon /> },
   ];

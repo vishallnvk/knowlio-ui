@@ -18,7 +18,7 @@ apiClient.interceptors.request.use(
       const session = await fetchAuthSession();
       
       // Extract the access token from the session
-      const accessToken = session.tokens?.accessToken?.toString();
+      const accessToken = session.tokens?.idToken?.toString();
       
       if (accessToken) {
         // Add the Authorization header with Bearer token

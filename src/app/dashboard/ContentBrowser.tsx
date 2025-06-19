@@ -21,15 +21,12 @@ import ContentList from './ContentList';
 interface ContentFilters {
   search: string;
   status: string;
-  publisher_id: string;
 }
 
 interface ContentParams {
-  type: string;
   attributes: {
     type: string;
     status?: string;
-    publisher_id?: string;
     search?: string;
   };
   limit: number;
@@ -53,8 +50,7 @@ export default function ContentBrowser() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [filters, setFilters] = useState<ContentFilters>({
     search: '',
-    status: 'DRAFT',
-    publisher_id: '2df85e25-6066-4581-b1d6-7008cf4a671a'
+    status: 'DRAFT'
   });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -71,8 +67,7 @@ export default function ContentBrowser() {
   const clearFilters = () => {
     setFilters({
       search: '',
-      status: '',
-      publisher_id: '2df85e25-6066-4581-b1d6-7008cf4a671a'
+      status: ''
     });
   };
 
@@ -80,7 +75,6 @@ export default function ContentBrowser() {
     const selectedType = contentTypes[selectedTab];
     const attributes: ContentParams['attributes'] = {
       type: selectedType.value,
-      publisher_id: filters.publisher_id
     };
 
     if (filters.status) {
@@ -92,9 +86,8 @@ export default function ContentBrowser() {
     }
 
     return {
-      type: selectedType.value,
       attributes,
-      limit: 1
+      limit: 10
     };
   };
 
@@ -178,10 +171,10 @@ export default function ContentBrowser() {
             {/* Publisher ID Filter */}
             <TextField
               fullWidth
-              label="Publisher ID"
+              label="Dummy"
               variant="outlined"
-              value={filters.publisher_id}
-              onChange={(e) => handleFilterChange('publisher_id', e.target.value)}
+              //value={filters.publisher_id}
+              //onChange={(e) => handleFilterChange('publisher_id', e.target.value)}
               placeholder="Enter publisher ID..."
               sx={{ mb: 3 }}
             />

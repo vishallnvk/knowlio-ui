@@ -2,9 +2,9 @@
     "aws_cognito_region": "us-west-2",
     "aws_sign_in_enabled": "enable",
     "aws_user_pools": "enable",
-    "aws_user_pools_id": "us-west-2_WrflEjCoo",
+    "aws_user_pools_id": "us-west-2_Go9dE6l10",
     "aws_user_pools_mfa_type": "OFF",
-    "aws_user_pools_web_client_id": "70al6t6rp1v9g74e7rjfdjuaej",
+    "aws_user_pools_web_client_id": "666jqb3h3uv3fgbodvptss836m",
     "domain": "authstack-knowlio-auth.auth.us-west-2.amazoncognito.com",
     "redirectSignIn": ["http://localhost:3000/"],
     "redirectSignOut": ["http://localhost:3000/"]

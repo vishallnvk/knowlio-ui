@@ -33,7 +33,7 @@ interface ContentListProps {
 export default function ContentList({ contentParams }: ContentListProps) {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 1
+    pageSize: 10
   });
 
   const {
@@ -121,9 +121,16 @@ export default function ContentList({ contentParams }: ContentListProps) {
     }
   ];
 
-  const visibleRow = allContent[paginationModel.page]
-    ? [{ ...allContent[paginationModel.page], id: allContent[paginationModel.page].content_id }]
-    : [];
+  // Map all content items to include the required id property
+  const rowsWithIds = allContent.map(item => ({
+    ...item,
+    id: item.content_id
+  }));
+  
+  // Get only the rows for the current page
+  const startIndex = paginationModel.page * paginationModel.pageSize;
+  const endIndex = startIndex + paginationModel.pageSize;
+  const currentPageRows = rowsWithIds.slice(startIndex, endIndex);
 
   if (error) {
     return (
@@ -144,7 +151,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
     <Box sx={{ width: '100%' }}>
       <Card sx={{ width: '100%' }}>
         <DataGrid
-          rows={visibleRow}
+          rows={currentPageRows}
           columns={columns}
           rowCount={hasNextPage ? allContent.length + 1 : allContent.length}
           paginationMode="server"
@@ -153,10 +160,9 @@ export default function ContentList({ contentParams }: ContentListProps) {
             const nextPage = model.page;
             // Only allow advancing if data exists or can be fetched
             if (nextPage < allContent.length || hasNextPage) {
-              setPaginationModel({ ...model, pageSize: 1 });
+              setPaginationModel({ ...model, pageSize: 10 });
             }
           }}
-          pageSizeOptions={[1]}
           disableRowSelectionOnClick
           loading={isLoading || isFetchingNextPage}
           sx={{
