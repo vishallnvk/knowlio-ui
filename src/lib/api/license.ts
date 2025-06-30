@@ -67,7 +67,7 @@ export const signLicenseAgreement = async (
  * @returns useQuery result with license status
  */
 export const useLicenseStatus = () => {
-  let isSigned = true;
+  let isSigned = false;
     if (isSigned) {
       return {data: {
         isSigned: true,

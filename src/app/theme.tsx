@@ -4,82 +4,91 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#6366f1', // Modern indigo
-      light: '#818cf8',
-      dark: '#4f46e5',
+      main: '#4A9B8E', // Authors Guild teal
+      light: '#6BB5A8',
+      dark: '#357A6F',
     },
     secondary: {
-      main: '#06b6d4', // Cyan
-      light: '#22d3ee',
-      dark: '#0891b2',
+      main: '#8B4513', // Warm brown/saddle brown
+      light: '#A0522D',
+      dark: '#654321',
     },
     background: {
-      default: '#fafafa',
+      default: '#fefefe',
       paper: '#ffffff',
     },
     text: {
-      primary: '#1f2937',
-      secondary: '#6b7280',
+      primary: '#2c2c2c',
+      secondary: '#5a5a5a',
     },
     success: {
-      main: '#10b981',
+      main: '#4A9B8E',
     },
     warning: {
-      main: '#f59e0b',
+      main: '#D2691E',
     },
     error: {
-      main: '#ef4444',
+      main: '#B22222',
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Georgia", "Times New Roman", "serif"',
     h1: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 700,
       fontSize: '2.5rem',
       lineHeight: 1.2,
-      color: '#1f2937',
+      color: '#2c2c2c',
     },
     h2: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 600,
       fontSize: '2rem',
       lineHeight: 1.3,
-      color: '#1f2937',
+      color: '#2c2c2c',
     },
     h3: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 600,
       fontSize: '1.75rem',
       lineHeight: 1.3,
-      color: '#1f2937',
+      color: '#2c2c2c',
     },
     h4: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 600,
       fontSize: '1.5rem',
       lineHeight: 1.4,
-      color: '#1f2937',
+      color: '#2c2c2c',
     },
     h5: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 600,
       fontSize: '1.25rem',
       lineHeight: 1.4,
-      color: '#374151',
+      color: '#2c2c2c',
     },
     h6: {
+      fontFamily: '"Georgia", "Times New Roman", "serif"',
       fontWeight: 600,
       fontSize: '1.125rem',
       lineHeight: 1.4,
-      color: '#374151',
+      color: '#2c2c2c',
     },
     body1: {
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
       fontSize: '1rem',
       lineHeight: 1.6,
-      color: '#4b5563',
+      color: '#5a5a5a',
     },
     body2: {
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
       fontSize: '0.875rem',
       lineHeight: 1.5,
-      color: '#6b7280',
+      color: '#5a5a5a',
     },
     button: {
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
       textTransform: 'none',
     },
@@ -133,10 +142,10 @@ const theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#6366f1',
+              borderColor: '#4A9B8E',
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#6366f1',
+              borderColor: '#4A9B8E',
             },
           },
         },

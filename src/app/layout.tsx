@@ -8,8 +8,10 @@ import theme from './theme';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { AuthProvider } from '../components/AuthProvider';
 import { AppNavBar } from '../components/AppNavBar';
+import Footer from '../components/Footer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Box } from '@mui/material';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -49,8 +51,17 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <QueryProvider>
               <AuthProvider>
-                <AppNavBar />
-                {children}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  minHeight: '100vh'
+                }}>
+                  <AppNavBar />
+                  <Box sx={{ flex: 1 }}>
+                    {children}
+                  </Box>
+                  <Footer />
+                </Box>
               </AuthProvider>
             </QueryProvider>
           </ThemeProvider>
