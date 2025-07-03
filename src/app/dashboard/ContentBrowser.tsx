@@ -18,27 +18,7 @@ import {
   Button
 } from '@mui/material';
 import ContentList from './ContentList';
-
-interface ContentFilters {
-  author: string;
-  year_published: string;
-  publisher_name: string;
-  title: string;
-  license_status: string;
-}
-
-interface ContentParams {
-  type: string;
-  attributes: {
-    type: string;
-    author?: string;
-    year_published?: string;
-    publisher_name?: string;
-    title?: string;
-    license_status?: string;
-  };
-  limit: number;
-}
+import { ContentParams } from '@/lib/api/content';
 
 const contentTypes = [
   { value: 'BOOK', label: 'Book' },
@@ -62,12 +42,12 @@ export default function ContentBrowser() {
   const titleRef = useRef<HTMLInputElement>(null);
   const [licenseStatus, setLicenseStatus] = useState('');
   
-  const [appliedFilters, setAppliedFilters] = useState<ContentFilters>({
+  const [appliedFilters, setAppliedFilters] = useState<Partial<ContentParams>>({
     author: '',
-    year_published: '',
-    publisher_name: '',
+    year: undefined,
+    publisher: '',
     title: '',
-    license_status: ''
+    licensing_status: ''
   });
   const [validationError, setValidationError] = useState('');
 
@@ -82,10 +62,10 @@ export default function ContentBrowser() {
     
     setAppliedFilters({
       author: '',
-      year_published: '',
-      publisher_name: '',
+      year: undefined,
+      publisher: '',
       title: '',
-      license_status: ''
+      licensing_status: ''
     });
     setValidationError('');
   };
@@ -99,10 +79,10 @@ export default function ContentBrowser() {
     
     setAppliedFilters({
       author: '',
-      year_published: '',
-      publisher_name: '',
+      year: undefined,
+      publisher: '',
       title: '',
-      license_status: ''
+      licensing_status: ''
     });
     setValidationError('');
   };
@@ -122,43 +102,40 @@ export default function ContentBrowser() {
     setValidationError('');
     setAppliedFilters({
       author,
-      year_published: year,
-      publisher_name: publisher,
+      year: year ? parseInt(year) : undefined,
+      publisher,
       title,
-      license_status: licenseStatus
+      licensing_status: licenseStatus
     });
   };
 
   const getContentParams = (): ContentParams => {
     const selectedType = contentTypes[selectedTab];
-    const attributes: ContentParams['attributes'] = {
+    const params: any = {
       type: selectedType.value,
+      limit: 10
     };
 
-    // Only add filters for Book type
+    // Only add filters for Book type and only if they have values
     if (selectedType.value === 'BOOK') {
-      if (appliedFilters.author.trim()) {
-        attributes.author = appliedFilters.author.trim();
+      if (appliedFilters.year) {
+        params.year = appliedFilters.year;
       }
-      if (appliedFilters.year_published.trim()) {
-        attributes.year_published = appliedFilters.year_published.trim();
+      if (appliedFilters.title && appliedFilters.title.trim()) {
+        params.title = appliedFilters.title.trim();
       }
-      if (appliedFilters.publisher_name.trim()) {
-        attributes.publisher_name = appliedFilters.publisher_name.trim();
+      if (appliedFilters.licensing_status && appliedFilters.licensing_status.trim()) {
+        params.licensing_status = appliedFilters.licensing_status;
       }
-      if (appliedFilters.title.trim()) {
-        attributes.title = appliedFilters.title.trim();
+      if (appliedFilters.author && appliedFilters.author.trim()) {
+        params.author = appliedFilters.author.trim();
       }
-      if (appliedFilters.license_status) {
-        attributes.license_status = appliedFilters.license_status;
+      if (appliedFilters.publisher && appliedFilters.publisher.trim()) {
+        params.publisher = appliedFilters.publisher.trim();
       }
     }
 
-    return {
-      type: selectedType.value,
-      attributes,
-      limit: 10
-    };
+    return params;
   };
 
   const hasActiveFilters = () => {
@@ -301,14 +278,14 @@ export default function ContentBrowser() {
                     <strong>Author:</strong> "{appliedFilters.author}"
                   </Typography>
                 )}
-                {appliedFilters.year_published && (
+                {appliedFilters.year && (
                   <Typography variant="body2">
-                    <strong>Year:</strong> {appliedFilters.year_published}
+                    <strong>Year:</strong> {appliedFilters.year}
                   </Typography>
                 )}
-                {appliedFilters.publisher_name && (
+                {appliedFilters.publisher && (
                   <Typography variant="body2">
-                    <strong>Publisher:</strong> "{appliedFilters.publisher_name}"
+                    <strong>Publisher:</strong> "{appliedFilters.publisher}"
                   </Typography>
                 )}
                 {appliedFilters.title && (
@@ -316,9 +293,9 @@ export default function ContentBrowser() {
                     <strong>Title:</strong> "{appliedFilters.title}"
                   </Typography>
                 )}
-                {appliedFilters.license_status && (
+                {appliedFilters.licensing_status && (
                   <Typography variant="body2">
-                    <strong>License:</strong> {licenseStatusOptions.find(s => s.value === appliedFilters.license_status)?.label}
+                    <strong>License:</strong> {licenseStatusOptions.find(s => s.value === appliedFilters.licensing_status)?.label}
                   </Typography>
                 )}
               </Box>

@@ -3,13 +3,20 @@ import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResul
 
 // Book interface
 export interface Book {
+  isbn: string;
+  description: string;
+  categories: string[];
+  publisher: string;
   title: string;
   authors: string[];
-  publisher: string;
   publishedDate: string;
-  description: string;
+  selected?: boolean; // For UI selection
+}
+
+// Add book payload interface
+export interface AddBookPayload {
+  type: 'BOOK';
   isbn: string;
-  categories: string[];
 }
 
 // The API returns a single book directly, not wrapped in a response object
@@ -46,18 +53,22 @@ export const searchBookByIsbn = async (
 };
 
 /**
- * Add books to the user's library - base API function
- * @param books - Array of books to add
+ * Add a single book to the user's library - base API function
+ * @param isbn - ISBN of the book to add
  * @returns Promise with the response
  */
-export const addBooks = async (books: Omit<Book, 'id'>[]): Promise<AddBooksResponse> => {
+export const addBook = async (isbn: string): Promise<AddBooksResponse> => {
+  const payload: AddBookPayload = {
+    type: 'BOOK',
+    isbn: isbn
+  };
+
   return api.post<AddBooksResponse>(
-    '/prod/books/add',
-    {
-      books
-    }
+    '/prod/content/metadata/upload',
+    payload
   );
 };
+
 
 /**
  * React Query hook for searching books by ISBN
@@ -80,14 +91,14 @@ export const useBookSearch = (
 };
 
 /**
- * React Query hook for adding books
- * @returns UseMutationResult for adding books
+ * React Query hook for adding a single book
+ * @returns UseMutationResult for adding a book
  */
-export const useAddBooks = (): UseMutationResult<AddBooksResponse, Error, Omit<Book, 'id'>[]> => {
+export const useAddBook = (): UseMutationResult<AddBooksResponse, Error, string> => {
   const queryClient = useQueryClient();
   
-  return useMutation<AddBooksResponse, Error, Omit<Book, 'id'>[]>({
-    mutationFn: (books) => addBooks(books),
+  return useMutation<AddBooksResponse, Error, string>({
+    mutationFn: (isbn) => addBook(isbn),
     onSuccess: () => {
       // Invalidate relevant queries when books are added
       queryClient.invalidateQueries({ queryKey: ['content'] });
@@ -98,7 +109,7 @@ export const useAddBooks = (): UseMutationResult<AddBooksResponse, Error, Omit<B
 // Export default
 export default {
   searchBookByIsbn,
-  addBooks,
+  addBook,
   useBookSearch,
-  useAddBooks
+  useAddBook
 };

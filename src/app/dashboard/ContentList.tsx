@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useContent } from '@/lib/api/content';
+import { useContent, ContentParams } from '@/lib/api/content';
 import {
   Box,
   Card,
@@ -14,17 +14,6 @@ import {
   GridColDef,
   GridPaginationModel
 } from '@mui/x-data-grid';
-
-interface ContentParams {
-  type: string;
-  attributes: {
-    type: string;
-    status?: string;
-    publisher_id?: string;
-    search?: string;
-  };
-  limit: number;
-}
 
 interface ContentListProps {
   contentParams: ContentParams;
@@ -45,61 +34,71 @@ export default function ContentList({ contentParams }: ContentListProps) {
     isFetchingNextPage
   } = useContent(contentParams);
 
-  const allContent = useMemo(() => data?.pages.flatMap(p => p.contents) ?? [], [data]);
+  const allContent = useMemo(() => data?.pages.flatMap(p => p.items) ?? [], [data]);
 
   // Fetch next page if needed
   useEffect(() => {
-    if (
-      paginationModel.page >= allContent.length &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
+    const currentPageStart = paginationModel.page * paginationModel.pageSize;
+    const needsMoreData = currentPageStart >= allContent.length;
+    
+    if (needsMoreData && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [paginationModel.page, allContent.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [paginationModel.page, paginationModel.pageSize, allContent.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const columns: GridColDef[] = [
     { field: 'title', headerName: 'Title', flex: 1, minWidth: 200 },
-    { field: 'description', headerName: 'Description', flex: 1.5, minWidth: 300 },
+    { 
+      field: 'publisher', 
+      headerName: 'Publisher', 
+      flex: 1, 
+      minWidth: 200,
+      valueGetter: (value, row) => row.publisher || '-'
+    },
     { field: 'type', headerName: 'Type', width: 100 },
     {
-      field: 'status',
-      headerName: 'Status',
+      field: 'licensing_status',
+      headerName: 'License Status',
       width: 120,
       renderCell: (params) => (
         <Chip
           label={params.value}
           size="small"
-          color={params.value === 'DRAFT' ? 'default' : 'primary'}
+          color={params.value === 'DISABLED' ? 'default' : 'primary'}
           variant="outlined"
         />
       )
     },
     {
-      field: 'tags',
-      headerName: 'Tags',
+      field: 'keywords',
+      headerName: 'Keywords',
       width: 200,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          {params.value.slice(0, 2).map((tag: string) => (
-            <Chip
-              key={tag}
-              label={tag}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.75rem' }}
-            />
-          ))}
-          {params.value.length > 2 && (
-            <Chip
-              label={`+${params.value.length - 2}`}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.75rem' }}
-            />
-          )}
-        </Box>
-      )
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const keywords = params.value || [];
+        return (
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+            {keywords.slice(0, 2).map((keyword: string, index: number) => (
+              <Chip
+                key={`${keyword}-${index}`}
+                label={keyword}
+                size="small"
+                variant="outlined"
+                sx={{ fontSize: '0.75rem' }}
+              />
+            ))}
+            {keywords.length > 2 && (
+              <Chip
+                label={`+${keywords.length - 2}`}
+                size="small"
+                variant="outlined"
+                sx={{ fontSize: '0.75rem' }}
+              />
+            )}
+          </Box>
+        );
+      }
     },
     {
       field: 'created_at',
@@ -108,16 +107,16 @@ export default function ContentList({ contentParams }: ContentListProps) {
       valueFormatter: (value) => new Date(value).toLocaleDateString()
     },
     {
-      field: 'format',
-      headerName: 'Format',
-      width: 100,
-      valueGetter: (value, row) => row.metadata?.format || '-'
+      field: 'isbn',
+      headerName: 'ISBN',
+      width: 150,
+      valueGetter: (value, row) => row.isbn || '-'
     },
     {
-      field: 'pages',
-      headerName: 'Pages',
+      field: 'year',
+      headerName: 'Year',
       width: 80,
-      valueGetter: (value, row) => row.metadata?.pages || '-'
+      valueGetter: (value, row) => row.year || '-'
     }
   ];
 
@@ -153,15 +152,11 @@ export default function ContentList({ contentParams }: ContentListProps) {
         <DataGrid
           rows={currentPageRows}
           columns={columns}
-          rowCount={hasNextPage ? allContent.length + 1 : allContent.length}
+          rowCount={hasNextPage ? allContent.length + paginationModel.pageSize : allContent.length}
           paginationMode="server"
           paginationModel={paginationModel}
           onPaginationModelChange={(model) => {
-            const nextPage = model.page;
-            // Only allow advancing if data exists or can be fetched
-            if (nextPage < allContent.length || hasNextPage) {
-              setPaginationModel({ ...model, pageSize: 10 });
-            }
+            setPaginationModel(model);
           }}
           disableRowSelectionOnClick
           loading={isLoading || isFetchingNextPage}

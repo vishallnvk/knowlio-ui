@@ -1,29 +1,33 @@
 import { api } from './client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-// Content metadata interface
-export interface ContentMetadata {
-  format: string;
-  pages: string;
-  isbn: string;
-}
-
 // Content item interface
 export interface Content {
-  metadata: ContentMetadata;
   created_at: string;
   licensing_status: string;
   rag_status: string;
-  status: string;
+  isbn: string;
   content_id: string;
-  file_key: string | null;
   training_status: string;
-  updated_at: string | null;
-  description: string;
+  publisher: string;
+  keywords: string[];
+  year: string;
+  insert_time: string;
   publisher_id: string;
-  tags: string[];
   type: string;
   title: string;
+  authors: string[];
+  // Optional fields that might be present in some responses
+  status?: string;
+  file_key?: string | null;
+  updated_at?: string | null;
+  description?: string;
+  tags?: string[];
+  metadata?: {
+    format?: string;
+    pages?: string;
+    isbn?: string;
+  };
 }
 
 // Pagination interface
@@ -32,38 +36,68 @@ export interface Pagination {
   has_more: boolean;
 }
 
+// API response wrapper interface
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  metadata: {
+    timestamp: string;
+    request_id: string;
+    pagination?: Pagination;
+  };
+}
+
 // Content filter response interface
 export interface ContentFilterResponse {
-  contents: Content[];
+  items: Content[];
   count: number;
   total_scanned: number;
-  pagination: Pagination;
+  pagination?: Pagination;
+}
+
+// Content parameters interface for UI components
+export interface ContentParams {
+  type: string;
+  year?: number;
+  title?: string;
+  licensing_status?: string;
+  author?: string;
+  publisher?: string;
+  limit: number;
 }
 
 // Content filter request interface (optional - for type safety on request payload)
 export interface ContentFilterRequest {
   // Add filter parameters as needed
   type?: string;
-  status?: string;
-  tags?: string[];
-  publisher_id?: string;
+  year?: number | string;
+  title?: string;
+  licensing_status?: string;
   limit?: number;
   next_token?: string;
   [key: string]: any; // Allow additional filter parameters
 }
 
 /**
- * Filter content using the /prod/content/filter endpoint
+ * Filter content using the /prod/content/search endpoint
  * @param filters - Optional filter parameters
  * @returns Promise with filtered content response
  */
 export const filterContent = async (
   filters?: ContentFilterRequest
 ): Promise<ContentFilterResponse> => {
-  return api.post<ContentFilterResponse, ContentFilterRequest>(
+  const response = await api.post<ApiResponse<ContentFilterResponse>, ContentFilterRequest>(
     '/prod/content/search',
     filters
   );
+  
+  // Extract pagination from metadata and include it in the response
+  const result = response.data;
+  if (response.metadata?.pagination) {
+    result.pagination = response.metadata.pagination;
+  }
+  
+  return result;
 };
 
 /**
@@ -79,7 +113,7 @@ export const useContent = (
     queryFn: async ({ pageParam }) => {
       const requestFilters: ContentFilterRequest = {
         ...filters,
-        pagination_token: pageParam as string | undefined,
+        next_token: pageParam as string | undefined,
       };
       return await filterContent(requestFilters);
     },

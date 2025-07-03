@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useBookSearch, useAddBooks, searchBookByIsbn, addBooks, Book as ApiBook } from '@/lib/api/books';
+import { useBookSearch, useAddBook, searchBookByIsbn, addBook, Book } from '@/lib/api/books';
 import {
   Box,
   Typography,
@@ -21,22 +21,24 @@ import {
   TableRow,
   Checkbox,
   IconButton,
-  FormHelperText
+  FormHelperText,
+  Chip
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 import { useRouter } from 'next/navigation';
 
-interface Book {
-  id?: string;
-  title: string;
-  authors: string[];
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn: string;
-  categories: string[];
+interface BookWithSelection extends Book {
   selected?: boolean;
+}
+
+interface CsvBookRecord {
+  isbn: string;
+  status: 'loading' | 'ready' | 'error' | 'adding' | 'success' | 'failed';
+  book?: Book;
+  error?: string;
 }
 
 export default function AddBooksPage() {
@@ -45,7 +47,7 @@ export default function AddBooksPage() {
   const [isbn, setIsbn] = useState('');
   const [isbnError, setIsbnError] = useState('');
   const [searchEnabled, setSearchEnabled] = useState(false);
-  const [searchResults, setSearchResults] = useState<Book[]>([]);
+  const [searchResults, setSearchResults] = useState<BookWithSelection[]>([]);
   const [isLoadingCsv, setIsLoadingCsv] = useState(false);
   
   // React Query hooks
@@ -56,17 +58,17 @@ export default function AddBooksPage() {
   } = useBookSearch(isbn, undefined, { enabled: searchEnabled });
   
   const { 
-    mutate: addBooksToLibrary, 
+    mutate: addBookToLibrary, 
     isPending: isAddingBooks,
     isSuccess: addSuccess,
     error: addError
-  } = useAddBooks();
+  } = useAddBook();
   
   // Combined loading state
   const isLoading = isSearchLoading || isAddingBooks || isLoadingCsv;
-  const [selectedBooks, setSelectedBooks] = useState<Book[]>([]);
+  const [selectedBooks, setSelectedBooks] = useState<BookWithSelection[]>([]);
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<Book[]>([]);
+  const [csvRecords, setCsvRecords] = useState<CsvBookRecord[]>([]);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +81,7 @@ export default function AddBooksPage() {
     setSearchResults([]);
     setSelectedBooks([]);
     setCsvFile(null);
-    setCsvData([]);
+    setCsvRecords([]);
     setCsvErrors([]);
     setSuccessMessage('');
   };
@@ -99,7 +101,7 @@ export default function AddBooksPage() {
   useEffect(() => {
     if (bookSearchData && searchEnabled) {
       // The API returns a single book directly
-      const bookWithSelected: Book = {
+      const bookWithSelected: BookWithSelection = {
         ...bookSearchData,
         selected: false
       };
@@ -147,18 +149,22 @@ export default function AddBooksPage() {
       return;
     }
     
-    // Use the React Query mutation
-    addBooksToLibrary(booksToAdd, {
-      onSuccess: () => {
-        setSuccessMessage(`Successfully added ${booksToAdd.length} book(s) to your library`);
-        setSearchResults([]);
-        setIsbn('');
-      },
-      onError: (error) => {
-        console.error('Error adding books:', error);
-        setIsbnError('Failed to add books. Please try again.');
-      }
-    });
+    // Add books one by one
+    for (const book of booksToAdd) {
+      addBookToLibrary(book.isbn, {
+        onSuccess: () => {
+          console.log(`Successfully added book: ${book.title}`);
+        },
+        onError: (error: any) => {
+          console.error('Error adding book:', error);
+          setIsbnError(`Failed to add book: ${book.title}`);
+        }
+      });
+    }
+    
+    setSuccessMessage(`Processing ${booksToAdd.length} book(s)...`);
+    setSearchResults([]);
+    setIsbn('');
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,7 +173,7 @@ export default function AddBooksPage() {
     
     setCsvFile(file);
     setCsvErrors([]);
-    setCsvData([]);
+    setCsvRecords([]);
     
     // Read and parse CSV file
     const reader = new FileReader();
@@ -178,7 +184,7 @@ export default function AddBooksPage() {
     reader.readAsText(file);
   };
 
-  const parseCsvContent = (content: string) => {
+  const parseCsvContent = async (content: string) => {
     const lines = content.split('\n');
     if (lines.length < 2) {
       setCsvErrors(['CSV file must contain a header row and at least one data row']);
@@ -186,84 +192,137 @@ export default function AddBooksPage() {
     }
     
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    const requiredFields = ['title', 'authors', 'publisher', 'publisheddate', 'isbn'];
     
-    // Validate headers
-    const missingFields = requiredFields.filter(field => !headers.includes(field));
-    if (missingFields.length > 0) {
-      setCsvErrors([`CSV is missing required columns: ${missingFields.join(', ')}`]);
+    // Only require ISBN column
+    if (!headers.includes('isbn')) {
+      setCsvErrors(['CSV must contain an "isbn" column']);
       return;
     }
     
-    const parsedData: Book[] = [];
+    const isbnIndex = headers.indexOf('isbn');
+    const isbns: string[] = [];
     const errors: string[] = [];
     
-    // Parse data rows
+    // Parse ISBN values
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue; // Skip empty lines
       
       const values = lines[i].split(',').map(v => v.trim());
-      if (values.length !== headers.length) {
-        errors.push(`Row ${i} has ${values.length} columns, expected ${headers.length}`);
+      if (values.length <= isbnIndex) {
+        errors.push(`Row ${i}: Missing ISBN value`);
         continue;
       }
       
-      const book: any = {};
-      headers.forEach((header, index) => {
-        if (header === 'authors' || header === 'categories') {
-          // Parse arrays from pipe-separated values
-          book[header] = values[index] ? values[index].split('|') : [];
-        } else {
-          book[header] = values[index];
-        }
-      });
+      const isbn = values[isbnIndex];
       
       // Validate ISBN
-      if (!/^\d{10}(\d{3})?$/.test(book.isbn.replace(/[-\s]/g, ''))) {
-        errors.push(`Row ${i}: Invalid ISBN "${book.isbn}"`);
+      if (!/^\d{10}(\d{3})?$/.test(isbn.replace(/[-\s]/g, ''))) {
+        errors.push(`Row ${i}: Invalid ISBN "${isbn}"`);
+        continue;
       }
       
-      parsedData.push(book as Book);
+      isbns.push(isbn);
     }
     
-    setCsvData(parsedData);
-    setCsvErrors(errors);
+    if (errors.length > 0) {
+      setCsvErrors(errors);
+      return;
+    }
+    
+    // Initialize records with loading status
+    const initialRecords: CsvBookRecord[] = isbns.map(isbn => ({
+      isbn,
+      status: 'loading'
+    }));
+    setCsvRecords(initialRecords);
+    
+    // Search for each book by ISBN and update status in real-time
+    for (let i = 0; i < isbns.length; i++) {
+      const isbn = isbns[i];
+      try {
+        const book = await searchBookByIsbn(isbn);
+        setCsvRecords(prev => prev.map(record => 
+          record.isbn === isbn 
+            ? { ...record, status: 'ready', book }
+            : record
+        ));
+      } catch (error: any) {
+        setCsvRecords(prev => prev.map(record => 
+          record.isbn === isbn 
+            ? { ...record, status: 'error', error: `Failed to find book with ISBN: ${isbn}` }
+            : record
+        ));
+      }
+    }
   };
 
   const uploadCsvData = async () => {
-    if (csvErrors.length > 0) {
+    const readyRecords = csvRecords.filter(record => record.status === 'ready');
+    
+    if (readyRecords.length === 0) {
+      setCsvErrors(['No valid books to import']);
       return;
     }
     
-    if (csvData.length === 0) {
-      setCsvErrors(['No valid data to upload']);
-      return;
+    // Process each ready record
+    for (const record of readyRecords) {
+      // Update status to adding
+      setCsvRecords(prev => prev.map(r => 
+        r.isbn === record.isbn 
+          ? { ...r, status: 'adding' }
+          : r
+      ));
+      
+      try {
+        await addBook(record.isbn);
+        // Update status to success
+        setCsvRecords(prev => prev.map(r => 
+          r.isbn === record.isbn 
+            ? { ...r, status: 'success' }
+            : r
+        ));
+      } catch (error: any) {
+        // Update status to failed
+        setCsvRecords(prev => prev.map(r => 
+          r.isbn === record.isbn 
+            ? { ...r, status: 'failed', error: `Failed to add book: ${r.book?.title || r.isbn}` }
+            : r
+        ));
+      }
     }
     
-    setIsLoadingCsv(true);
-    
-    try {
-      // Use the React Query mutation
-      addBooksToLibrary(csvData, {
-        onSuccess: () => {
-          setSuccessMessage(`Successfully added ${csvData.length} book(s) to your library`);
-          setCsvData([]);
-          setCsvFile(null);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-          setIsLoadingCsv(false);
-        },
-        onError: (error) => {
-          console.error('Error uploading CSV data:', error);
-          setCsvErrors(['Failed to add books from CSV. Please try again.']);
-          setIsLoadingCsv(false);
-        }
-      });
-    } catch (error) {
-      console.error('Error uploading CSV data:', error);
-      setCsvErrors(['Failed to add books from CSV. Please try again.']);
-      setIsLoadingCsv(false);
+    const successCount = csvRecords.filter(r => r.status === 'success').length;
+    setSuccessMessage(`Successfully added ${successCount} out of ${readyRecords.length} book(s) to your library`);
+  };
+
+  const getStatusChip = (record: CsvBookRecord) => {
+    switch (record.status) {
+      case 'loading':
+        return <Chip size="small" label="Loading..." color="default" icon={<CircularProgress size={16} />} />;
+      case 'ready':
+        return <Chip size="small" label="Ready" color="success" />;
+      case 'error':
+        return <Chip size="small" label="Error" color="error" icon={<ErrorIcon />} />;
+      case 'adding':
+        return <Chip size="small" label="Adding..." color="primary" icon={<CircularProgress size={16} />} />;
+      case 'success':
+        return <Chip size="small" label="Success" color="success" icon={<CheckCircleIcon />} />;
+      case 'failed':
+        return <Chip size="small" label="Failed" color="error" icon={<ErrorIcon />} />;
+      default:
+        return null;
+    }
+  };
+
+  const getRowColor = (status: string) => {
+    switch (status) {
+      case 'error':
+      case 'failed':
+        return '#ffebee'; // Light red
+      case 'success':
+        return '#e8f5e8'; // Light green
+      default:
+        return 'inherit';
     }
   };
 
@@ -391,10 +450,9 @@ export default function AddBooksPage() {
                 Import Books from CSV
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                Upload a CSV file with book information. The CSV must include columns for: title, authors, publisher, publishedDate, and isbn.
+                Upload a CSV file with ISBN numbers. The CSV must contain an "isbn" column. Book details will be automatically fetched for each ISBN.
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                For authors and categories columns, use pipe (|) to separate multiple values.
                 <Button 
                   variant="text" 
                   size="small" 
@@ -447,36 +505,35 @@ export default function AddBooksPage() {
                 </Alert>
               )}
 
-              {isLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                  <CircularProgress />
-                </Box>
-              )}
-
-              {csvData.length > 0 && !isLoading && (
+              {csvRecords.length > 0 && (
                 <Box>
                   <Typography variant="h6" gutterBottom>
-                    CSV Preview ({csvData.length} books)
+                    CSV Import Status ({csvRecords.length} records)
                   </Typography>
                   <TableContainer component={Paper} sx={{ mb: 3, maxHeight: 400 }}>
                     <Table stickyHeader>
                       <TableHead>
                         <TableRow>
+                          <TableCell>Status</TableCell>
+                          <TableCell>ISBN</TableCell>
                           <TableCell>Title</TableCell>
                           <TableCell>Author(s)</TableCell>
                           <TableCell>Publisher</TableCell>
-                          <TableCell>Published</TableCell>
-                          <TableCell>ISBN</TableCell>
+                          <TableCell>Error</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {csvData.map((book, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{book.title}</TableCell>
-                            <TableCell>{book.authors.join(', ')}</TableCell>
-                            <TableCell>{book.publisher}</TableCell>
-                            <TableCell>{book.publishedDate}</TableCell>
-                            <TableCell>{book.isbn}</TableCell>
+                        {csvRecords.map((record, index) => (
+                          <TableRow 
+                            key={index}
+                            sx={{ backgroundColor: getRowColor(record.status) }}
+                          >
+                            <TableCell>{getStatusChip(record)}</TableCell>
+                            <TableCell>{record.isbn}</TableCell>
+                            <TableCell>{record.book?.title || '-'}</TableCell>
+                            <TableCell>{record.book?.authors?.join(', ') || '-'}</TableCell>
+                            <TableCell>{record.book?.publisher || '-'}</TableCell>
+                            <TableCell>{record.error || '-'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -486,9 +543,9 @@ export default function AddBooksPage() {
                     <Button
                       variant="contained"
                       onClick={uploadCsvData}
-                      disabled={isLoading || csvErrors.length > 0}
+                      disabled={csvRecords.filter(r => r.status === 'ready').length === 0}
                     >
-                      Import All Books
+                      Add Books ({csvRecords.filter(r => r.status === 'ready').length} ready)
                     </Button>
                   </Box>
                 </Box>
