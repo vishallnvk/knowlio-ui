@@ -60,6 +60,8 @@ export default function ContentList({ contentParams }: ContentListProps) {
       field: 'licensing_status',
       headerName: 'License Status',
       width: 120,
+      align: 'center',
+      headerAlign: 'center',
       renderCell: (params) => (
         <Chip
           label={params.value}
@@ -73,27 +75,56 @@ export default function ContentList({ contentParams }: ContentListProps) {
       field: 'keywords',
       headerName: 'Keywords',
       width: 200,
+      align: 'center',
+      headerAlign: 'center',
       sortable: false,
       filterable: false,
+      disableColumnMenu: true,
       renderCell: (params) => {
         const keywords = params.value || [];
+        if (!Array.isArray(keywords) || keywords.length === 0) {
+          return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+              <Typography variant="body2" color="text.secondary">-</Typography>
+            </Box>
+          );
+        }
         return (
-          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              gap: 0.5, 
+              flexWrap: 'wrap', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              height: '100%',
+              py: 1
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             {keywords.slice(0, 2).map((keyword: string, index: number) => (
               <Chip
-                key={`${keyword}-${index}`}
+                key={`${params.id}-keyword-${index}-${keyword}`}
                 label={keyword}
                 size="small"
                 variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
+                sx={{ 
+                  fontSize: '0.75rem',
+                  pointerEvents: 'none'
+                }}
               />
             ))}
             {keywords.length > 2 && (
               <Chip
+                key={`${params.id}-more-keywords`}
                 label={`+${keywords.length - 2}`}
                 size="small"
                 variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
+                sx={{ 
+                  fontSize: '0.75rem',
+                  pointerEvents: 'none'
+                }}
               />
             )}
           </Box>
@@ -148,7 +179,13 @@ export default function ContentList({ contentParams }: ContentListProps) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Card sx={{ width: '100%' }}>
+      <Box sx={{ 
+        width: '100%', 
+        backgroundColor: 'white',
+        border: '1px solid #e5e7eb',
+        borderRadius: 0,
+        overflow: 'hidden'
+      }}>
         <DataGrid
           rows={currentPageRows}
           columns={columns}
@@ -161,19 +198,65 @@ export default function ContentList({ contentParams }: ContentListProps) {
           disableRowSelectionOnClick
           loading={isLoading || isFetchingNextPage}
           sx={{
+            border: 'none',
+            borderRadius: 0,
+            '& .MuiDataGrid-main': {
+              borderRadius: 0,
+            },
             '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'background.paper',
+              backgroundColor: '#f8fafc',
+              borderBottom: '2px solid #e5e7eb',
               position: 'sticky',
               top: 0,
               zIndex: 1,
+              '& .MuiDataGrid-columnHeader': {
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                color: '#374151',
+                '&:focus': {
+                  outline: 'none',
+                },
+                '&:focus-within': {
+                  outline: 'none',
+                },
+              },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 600,
+                color: '#374151',
+              },
             },
             '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid',
-              borderBottomColor: 'divider',
+              borderBottom: '1px solid #f3f4f6',
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              '&:focus': {
+                outline: 'none',
+              },
+              '&:focus-within': {
+                outline: 'none',
+              },
+            },
+            '& .MuiDataGrid-row': {
+              '&:hover': {
+                backgroundColor: '#f9fafb',
+              },
+              '&.Mui-selected': {
+                backgroundColor: '#f0f9ff',
+                '&:hover': {
+                  backgroundColor: '#e0f2fe',
+                },
+              },
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '1px solid #e5e7eb',
+              backgroundColor: '#f8fafc',
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              backgroundColor: 'white',
             },
           }}
         />
-      </Card>
+      </Box>
     </Box>
   );
 }

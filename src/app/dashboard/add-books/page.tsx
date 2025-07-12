@@ -24,6 +24,7 @@ import {
   FormHelperText,
   Chip
 } from '@mui/material';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -328,14 +329,6 @@ export default function AddBooksPage() {
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => router.push('/dashboard')} sx={{ mr: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography variant="h4" component="h1">
-          Add Books
-        </Typography>
-      </Box>
 
       <Paper sx={{ mb: 4 }}>
         <Tabs value={activeTab} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -375,8 +368,8 @@ export default function AddBooksPage() {
               </Box>
 
               {isLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                  <CircularProgress />
+                <Box sx={{ my: 4 }}>
+                  <LoadingSpinner />
                 </Box>
               )}
 

@@ -9,9 +9,12 @@ import {
   Typography,
   MenuList,
   MenuItem,
-  ClickAwayListener
+  ClickAwayListener,
+  Divider
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
@@ -32,97 +35,150 @@ export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => vo
 
   return (
     <Box sx={{ position: 'relative', display: 'inline-block' }}>
-      <Button
+      <Box
         ref={anchorRef}
         onClick={handleToggle}
-        variant="text"
-        endIcon={<PersonIcon sx={{ color: '#d1d5db' }} />}
         sx={{
-          textTransform: 'none',
-          fontWeight: 500,
-          color: '#d1d5db',
-          px: 2,
-          py: 1,
-          borderRadius: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: { xs: 1, sm: 2 },
+          px: { xs: 1, sm: 3 },
+          py: 2,
+          cursor: 'pointer',
+          borderRadius: 0,
+          border: 'none',
+          backgroundColor: 'transparent',
+          transition: 'all 0.2s ease',
+          minWidth: 0,
+          maxWidth: { xs: '200px', sm: 'none' },
           '&:hover': {
-            backgroundColor: '#374151',
-            color: 'white',
-            '& .MuiSvgIcon-root': {
-              color: 'white',
-            },
+            backgroundColor: '#f9fafb',
           },
         }}
       >
-        {user.username}
-      </Button>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontWeight: 500, 
+            color: '#374151',
+            fontSize: '0.95rem',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+            display: { xs: 'none', sm: 'block' }
+          }}
+        >
+          {user.email}
+        </Typography>
+        <Avatar 
+          alt={user.email} 
+          src={user.avatarUrl || ''} 
+          sx={{ 
+            width: 36, 
+            height: 36,
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+            flexShrink: 0
+          }}
+        >
+          {user.email?.charAt(0).toUpperCase() || 'U'}
+        </Avatar>
+        <KeyboardArrowDownIcon sx={{ fontSize: 18, color: '#6b7280', flexShrink: 0 }} />
+      </Box>
 
       {open && (
         <ClickAwayListener onClickAway={handleClose}>
           <Paper
-            elevation={4}
+            elevation={8}
             sx={{
               position: 'absolute',
               top: '100%',
               right: 0,
               mt: 1,
-              minWidth: 240,
-              maxWidth: '90vw',
+              width: 280,
+              maxWidth: 'calc(100vw - 32px)',
               zIndex: 1300,
+              border: '1px solid #e5e7eb',
+              borderRadius: 0,
+              transform: 'translateX(0)',
+              '@media (max-width: 320px)': {
+                width: 'calc(100vw - 32px)',
+                right: '50%',
+                transform: 'translateX(50%)',
+              },
             }}
           >
             <Box
               sx={{
-                px: 2,
-                py: 1.5,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
+                px: 3,
+                py: 3,
+                borderBottom: '1px solid #f3f4f6',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1,
-                flexDirection: { xs: 'column', sm: 'row' },
-                textAlign: { xs: 'center', sm: 'left' },
+                gap: 2,
               }}
             >
               <Avatar 
-                alt={user.username} 
+                alt={user.email} 
                 src={user.avatarUrl || ''} 
                 sx={{ 
-                  width: 40, 
-                  height: 40,
-                  backgroundColor: '#6366f1',
+                  width: 48, 
+                  height: 48,
+                  backgroundColor: '#3b82f6',
                   color: 'white',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  fontSize: '1.25rem'
                 }}
               >
-                {user.username.charAt(0).toUpperCase()}
+                {user.email?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
               <Box>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: '#111827' }}>
                   {user.username}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
+                <Typography variant="body2" sx={{ color: '#6b7280', wordBreak: 'break-word' }}>
                   {user.email}
                 </Typography>
               </Box>
             </Box>
 
-            <MenuList>
+            <MenuList sx={{ py: 1 }}>
+              <MenuItem
+                sx={{
+                  py: 2,
+                  px: 3,
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  color: '#374151',
+                  '&:hover': {
+                    backgroundColor: '#f9fafb',
+                  },
+                }}
+              >
+                <PersonIcon sx={{ mr: 2, fontSize: 20, color: '#6b7280' }} />
+                Profile Settings
+              </MenuItem>
+              <Divider sx={{ my: 1 }} />
               <MenuItem
                 onClick={() => {
                   setOpen(false);
                   onLogout();
                 }}
                 sx={{
-                  py: 1.5,
-                  px: 2,
-                  fontSize: '1rem',
+                  py: 2,
+                  px: 3,
+                  fontSize: '0.95rem',
                   fontWeight: 500,
+                  color: '#dc2626',
                   '&:hover': {
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
+                    backgroundColor: '#fef2f2',
                   },
                 }}
               >
+                <LogoutIcon sx={{ mr: 2, fontSize: 20, color: '#dc2626' }} />
                 Sign Out
               </MenuItem>
             </MenuList>

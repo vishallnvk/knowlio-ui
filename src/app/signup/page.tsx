@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { signUp, confirmSignUp, signInWithRedirect } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -91,16 +92,7 @@ export default function Signup() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <Typography variant="h6" className="text-gray-600">
-            Loading
-          </Typography>
-        </Box>
-      </div>
-    );
+    return <LoadingSpinner fullScreen />;
   }
 
   return (

@@ -16,16 +16,6 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider', backgroundColor: 'background.paper' }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
-          Content Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome back, {user.username}! Manage your content library below.
-        </Typography>
-      </Box>
-
       {/* Content Browser */}
       <Box sx={{ flex: 1, overflow: 'hidden' }}>
         <ContentBrowser />
