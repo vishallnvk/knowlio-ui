@@ -1,41 +1,40 @@
-'use client';
+"use client";
 
 import type { Metadata } from "next";
 import "./globals.css";
-import { Roboto } from 'next/font/google';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { AuthProvider } from '../components/AuthProvider';
-import { AppNavBar } from '../components/AppNavBar';
-import Footer from '../components/Footer';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Roboto } from "next/font/google";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./theme";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { AuthProvider, useAuth } from "../components/AuthProvider";
+import Footer from "../components/Footer";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+import { Box } from "@mui/material";
+import { AppNavBar } from "@/components/AppNavBar/AppNavBar";
 
 const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto',
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-roboto",
 });
 
 function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
-    () => new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 60 * 1000, // 1 minute
-          refetchOnWindowFocus: false,
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000, // 1 minute
+            refetchOnWindowFocus: false,
+          },
         },
-      },
-    })
+      })
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
 
@@ -51,22 +50,39 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <QueryProvider>
               <AuthProvider>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  minHeight: '100vh'
-                }}>
-                  <AppNavBar />
-                  <Box sx={{ flex: 1 }}>
-                    {children}
-                  </Box>
-                  <Footer />
-                </Box>
+                <LayoutWithAuth>{children}</LayoutWithAuth>
               </AuthProvider>
             </QueryProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
+  );
+}
+
+function LayoutWithAuth({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+      }}
+    >
+      <AppNavBar />
+      <Box
+        sx={{
+          flex: 1,
+          marginLeft: user ? { xs: "0px", md: "64px" } : {},
+          marginTop: user ? { xs: "48px", md: "0px" } : {},
+          background: "#f1f5f9",
+        }}
+      >
+        {children}
+      </Box>
+      <Footer />
+    </Box>
   );
 }

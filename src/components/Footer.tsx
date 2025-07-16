@@ -1,48 +1,54 @@
-'use client';
+"use client";
 
-import { Box, Container, Typography, Link as MuiLink } from '@mui/material';
-import Link from 'next/link';
+import { Box, Container, Typography, Link as MuiLink } from "@mui/material";
+import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   return (
-    <Box 
-      component="footer" 
-      sx={{ 
-        py: 1, 
-        mt: 'auto',
-        backgroundColor: 'background.paper',
+    <Box
+      component="footer"
+      sx={{
+        py: 1,
+        mt: "auto",
+        backgroundColor: "background.paper",
         borderTop: 1,
-        borderColor: 'divider'
+        borderColor: "divider",
       }}
     >
       <Container maxWidth="lg" sx={{ px: 1 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+          }}
+        >
           {/* Left side - Copyright */}
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: "0.875rem" }}
+          >
             © {currentYear} Knowlio. All rights reserved.
           </Typography>
 
           {/* Right side - Terms and Privacy */}
-          <Box sx={{ display: 'flex', gap: 3 }}>
+          <Box sx={{ display: "flex", gap: 3 }}>
             <MuiLink
               component={Link}
               href="/terms"
-              color="text.secondary" 
-              sx={{ 
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                '&:hover': {
-                  textDecoration: 'underline',
-                  color: 'primary.main'
-                }
+              color="text.secondary"
+              sx={{
+                textDecoration: "none",
+                fontSize: "0.875rem",
+                "&:hover": {
+                  textDecoration: "underline",
+                  color: "primary.main",
+                },
               }}
             >
               Terms of Service
@@ -50,14 +56,14 @@ export default function Footer() {
             <MuiLink
               component={Link}
               href="/privacy"
-              color="text.secondary" 
-              sx={{ 
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                '&:hover': {
-                  textDecoration: 'underline',
-                  color: 'primary.main'
-                }
+              color="text.secondary"
+              sx={{
+                textDecoration: "none",
+                fontSize: "0.875rem",
+                "&:hover": {
+                  textDecoration: "underline",
+                  color: "primary.main",
+                },
               }}
             >
               Privacy Policy
