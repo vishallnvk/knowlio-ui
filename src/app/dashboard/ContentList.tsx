@@ -1,29 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import { useContent, ContentParams } from '@/lib/api/content';
+import { useState, useEffect, useMemo } from "react";
+import { useContent, ContentParams } from "@/lib/api/content";
 import {
   Box,
   Card,
+  CardContent,
+  CardMedia,
   Chip,
   Alert,
-  Typography
-} from '@mui/material';
-import {
-  DataGrid,
-  GridColDef,
-  GridPaginationModel
-} from '@mui/x-data-grid';
+  Typography,
+  Pagination,
+  Skeleton,
+  Stack,
+} from "@mui/material";
 
 interface ContentListProps {
   contentParams: ContentParams;
 }
 
 export default function ContentList({ contentParams }: ContentListProps) {
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const {
     data,
@@ -31,232 +29,279 @@ export default function ContentList({ contentParams }: ContentListProps) {
     error,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useContent(contentParams);
 
-  const allContent = useMemo(() => data?.pages.flatMap(p => p.items) ?? [], [data]);
+  const allContent = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data]
+  );
 
   // Fetch next page if needed
   useEffect(() => {
-    const currentPageStart = paginationModel.page * paginationModel.pageSize;
+    const currentPageStart = (currentPage - 1) * itemsPerPage;
     const needsMoreData = currentPageStart >= allContent.length;
-    
+
     if (needsMoreData && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [paginationModel.page, paginationModel.pageSize, allContent.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    allContent.length,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
 
-  const columns: GridColDef[] = [
-    { field: 'title', headerName: 'Title', flex: 1, minWidth: 200 },
-    { 
-      field: 'publisher', 
-      headerName: 'Publisher', 
-      flex: 1, 
-      minWidth: 200,
-      valueGetter: (value, row) => row.publisher || '-'
-    },
-    { field: 'type', headerName: 'Type', width: 100 },
-    {
-      field: 'licensing_status',
-      headerName: 'License Status',
-      width: 120,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          size="small"
-          color={params.value === 'DISABLED' ? 'default' : 'primary'}
-          variant="outlined"
-        />
-      )
-    },
-    {
-      field: 'keywords',
-      headerName: 'Keywords',
-      width: 200,
-      align: 'center',
-      headerAlign: 'center',
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params) => {
-        const keywords = params.value || [];
-        if (!Array.isArray(keywords) || keywords.length === 0) {
-          return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-              <Typography variant="body2" color="text.secondary">-</Typography>
-            </Box>
-          );
-        }
-        return (
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              gap: 0.5, 
-              flexWrap: 'wrap', 
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              height: '100%',
-              py: 1
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {keywords.slice(0, 2).map((keyword: string, index: number) => (
-              <Chip
-                key={`${params.id}-keyword-${index}-${keyword}`}
-                label={keyword}
-                size="small"
-                variant="outlined"
-                sx={{ 
-                  fontSize: '0.75rem',
-                  pointerEvents: 'none'
-                }}
-              />
-            ))}
-            {keywords.length > 2 && (
-              <Chip
-                key={`${params.id}-more-keywords`}
-                label={`+${keywords.length - 2}`}
-                size="small"
-                variant="outlined"
-                sx={{ 
-                  fontSize: '0.75rem',
-                  pointerEvents: 'none'
-                }}
-              />
-            )}
-          </Box>
-        );
-      }
-    },
-    {
-      field: 'created_at',
-      headerName: 'Created',
-      width: 150,
-      valueFormatter: (value) => new Date(value).toLocaleDateString()
-    },
-    {
-      field: 'isbn',
-      headerName: 'ISBN',
-      width: 150,
-      valueGetter: (value, row) => row.isbn || '-'
-    },
-    {
-      field: 'year',
-      headerName: 'Year',
-      width: 80,
-      valueGetter: (value, row) => row.year || '-'
-    }
-  ];
+  // Get current page items
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageItems = allContent.slice(startIndex, endIndex);
 
-  // Map all content items to include the required id property
-  const rowsWithIds = allContent.map(item => ({
-    ...item,
-    id: item.content_id
-  }));
-  
-  // Get only the rows for the current page
-  const startIndex = paginationModel.page * paginationModel.pageSize;
-  const endIndex = startIndex + paginationModel.pageSize;
-  const currentPageRows = rowsWithIds.slice(startIndex, endIndex);
+  // Calculate total pages
+  const totalPages = Math.ceil(
+    (hasNextPage ? allContent.length + itemsPerPage : allContent.length) /
+      itemsPerPage
+  );
+
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
 
   if (error) {
     return (
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: "100%" }}>
         <Alert severity="error" sx={{ mb: 2 }}>
           <Typography variant="h6" component="div">
             Error Loading Content
           </Typography>
           <Typography variant="body2">
-            {error.message || 'An error occurred while fetching content. Please try again.'}
+            {error.message ||
+              "An error occurred while fetching content. Please try again."}
           </Typography>
         </Alert>
       </Box>
     );
   }
 
-  return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ 
-        width: '100%', 
-        backgroundColor: 'white',
-        border: '1px solid #e5e7eb',
-        borderRadius: 0,
-        overflow: 'hidden'
-      }}>
-        <DataGrid
-          rows={currentPageRows}
-          columns={columns}
-          rowCount={hasNextPage ? allContent.length + paginationModel.pageSize : allContent.length}
-          paginationMode="server"
-          paginationModel={paginationModel}
-          onPaginationModelChange={(model) => {
-            setPaginationModel(model);
-          }}
-          disableRowSelectionOnClick
-          loading={isLoading || isFetchingNextPage}
-          sx={{
-            border: 'none',
-            borderRadius: 0,
-            '& .MuiDataGrid-main': {
-              borderRadius: 0,
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#f8fafc',
-              borderBottom: '2px solid #e5e7eb',
-              position: 'sticky',
-              top: 0,
-              zIndex: 1,
-              '& .MuiDataGrid-columnHeader': {
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                color: '#374151',
-                '&:focus': {
-                  outline: 'none',
-                },
-                '&:focus-within': {
-                  outline: 'none',
-                },
-              },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: 600,
-                color: '#374151',
-              },
-            },
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid #f3f4f6',
-              fontSize: '0.875rem',
-              color: '#6b7280',
-              '&:focus': {
-                outline: 'none',
-              },
-              '&:focus-within': {
-                outline: 'none',
-              },
-            },
-            '& .MuiDataGrid-row': {
-              '&:hover': {
-                backgroundColor: '#f9fafb',
-              },
-              '&.Mui-selected': {
-                backgroundColor: '#f0f9ff',
-                '&:hover': {
-                  backgroundColor: '#e0f2fe',
-                },
-              },
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid #e5e7eb',
-              backgroundColor: '#f8fafc',
-            },
-            '& .MuiDataGrid-virtualScroller': {
-              backgroundColor: 'white',
-            },
-          }}
-        />
+  if (isLoading && allContent.length === 0) {
+    return (
+      <Box sx={{ width: "100%" }}>
+        <Stack spacing={3}>
+          {[...Array(2)].map((_, index) => (
+            <Card key={index} sx={{ display: "flex", minHeight: 218 }}>
+              <Skeleton
+                variant="rectangular"
+                width={200}
+                height={210}
+                sx={{ m: "3px", borderRadius: "16px 0 0 16px" }}
+              />
+              <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                <CardContent sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="60%" height={32} />
+                  <Skeleton
+                    variant="text"
+                    width="40%"
+                    height={20}
+                    sx={{ mt: 1 }}
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="60%"
+                    height={20}
+                    sx={{ mt: 1 }}
+                  />
+                  <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                    <Skeleton variant="rounded" width={60} height={24} />
+                    <Skeleton variant="rounded" width={80} height={24} />
+                  </Box>
+                </CardContent>
+              </Box>
+            </Card>
+          ))}
+        </Stack>
       </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Stack spacing={3}>
+        {currentPageItems.map((item) => (
+          <Card
+            key={item.content_id}
+            sx={{
+              display: "flex",
+              minHeight: 218,
+              "&:hover": {
+                boxShadow: 3,
+                transform: "translateY(-2px)",
+                transition: "all 0.2s ease-in-out",
+              },
+              transition: "all 0.2s ease-in-out",
+            }}
+          >
+            <CardMedia
+              component="img"
+              sx={{
+                p: "3px",
+                width: 200,
+                objectFit: "cover",
+                borderRadius: "16px 0 0 16px",
+              }}
+              image={"https://placehold.co/200x150?text=Book"}
+              alt={item.title}
+            />
+            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <CardContent
+                sx={{ display: "flex", flexDirection: "column", flex: 1, p: 3 }}
+              >
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  gutterBottom
+                  sx={{
+                    fontWeight: 600,
+                    color: "#1f2937",
+                    mb: 1,
+                  }}
+                >
+                  {item.title || "Unknown Title"}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  {item.publisher || "Unknown Publisher"}
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 2,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <Chip
+                    label={item.type}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontWeight: 500 }}
+                  />
+                  <Chip
+                    label={item.licensing_status}
+                    size="small"
+                    color={
+                      item.licensing_status === "DISABLED" ? "error" : "success"
+                    }
+                    variant="outlined"
+                  />
+                  {item.year && (
+                    <Chip
+                      label={item.year}
+                      size="small"
+                      variant="outlined"
+                      sx={{ backgroundColor: "#f3f4f6" }}
+                    />
+                  )}
+                </Box>
+
+                {item.keywords &&
+                  Array.isArray(item.keywords) &&
+                  item.keywords.length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 0.5,
+                        flexWrap: "wrap",
+                        mb: 2,
+                      }}
+                    >
+                      {item.keywords
+                        .slice(0, 3)
+                        .map((keyword: string, index: number) => (
+                          <Chip
+                            key={`${item.content_id}-keyword-${index}`}
+                            label={keyword}
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                              fontSize: "0.75rem",
+                              backgroundColor: "#f8fafc",
+                              borderColor: "#e2e8f0",
+                            }}
+                          />
+                        ))}
+                      {item.keywords.length > 3 && (
+                        <Chip
+                          label={`+${item.keywords.length - 3} more`}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            fontSize: "0.75rem",
+                            backgroundColor: "#f1f5f9",
+                            borderColor: "#cbd5e1",
+                          }}
+                        />
+                      )}
+                    </Box>
+                  )}
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mt: "auto",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    Created: {new Date(item.created_at).toLocaleDateString()}
+                  </Typography>
+                  {item.isbn && (
+                    <Typography variant="caption" color="text.secondary">
+                      ISBN: {item.isbn}
+                    </Typography>
+                  )}
+                </Box>
+              </CardContent>
+            </Box>
+          </Card>
+        ))}
+      </Stack>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            showFirstButton
+            showLastButton
+            disabled={isFetchingNextPage}
+          />
+        </Box>
+      )}
+
+      {/* Loading indicator for fetching next page */}
+      {isFetchingNextPage && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Loading more content...
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

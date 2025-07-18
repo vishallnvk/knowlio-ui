@@ -1,11 +1,8 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/components/AuthProvider';
-import ContentBrowser from './ContentBrowser';
-import { 
-  Box,
-  Typography
-} from '@mui/material';
+import { useAuth } from "@/components/AuthProvider";
+import ContentBrowser from "./ContentBrowser";
+import { Box } from "@mui/material";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -15,9 +12,9 @@ export default function Dashboard() {
   }
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Content Browser */}
-      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, overflow: "hidden" }}>
         <ContentBrowser />
       </Box>
     </Box>
