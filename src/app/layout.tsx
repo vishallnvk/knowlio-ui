@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Box } from "@mui/material";
 import { AppNavBar } from "@/components/AppNavBar/AppNavBar";
+import { usePathname } from "next/navigation";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -62,6 +63,12 @@ export default function RootLayout({
 
 function LayoutWithAuth({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const pathname = usePathname();
+
+  // Paths where AppNavBar should be hidden
+  const HIDE_NAVBAR_PATHS = ["/"];
+
+  const hideNavBar = HIDE_NAVBAR_PATHS.includes(pathname);
 
   return (
     <Box
@@ -71,18 +78,18 @@ function LayoutWithAuth({ children }: { children: React.ReactNode }) {
         minHeight: "100vh",
       }}
     >
-      <AppNavBar />
+      {!hideNavBar && <AppNavBar />}
       <Box
         sx={{
           flex: 1,
-          marginLeft: user ? { xs: "0px", md: "64px" } : {},
-          marginTop: user ? { xs: "48px", md: "0px" } : {},
+          marginLeft: user && !hideNavBar ? { xs: "0px", md: "64px" } : {},
+          marginTop: user && !hideNavBar ? { xs: "48px", md: "0px" } : {},
           background: "#f1f5f9",
         }}
       >
         {children}
       </Box>
-      <Footer />
+      <Footer isNavHidden={hideNavBar} />
     </Box>
   );
 }

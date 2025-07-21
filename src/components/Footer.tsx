@@ -4,7 +4,11 @@ import { Box, Container, Typography, Link as MuiLink } from "@mui/material";
 import { useAuth } from "./AuthProvider";
 import Link from "next/link";
 
-export default function Footer() {
+interface FooterProps {
+  isNavHidden: boolean;
+}
+
+export default function Footer({ isNavHidden }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const { user } = useAuth();
 
@@ -17,7 +21,7 @@ export default function Footer() {
         backgroundColor: "background.paper",
         borderTop: 1,
         borderColor: "divider",
-        marginLeft: user ? { xs: "0px", md: "64px" } : {},
+        marginLeft: user && !isNavHidden ? { xs: "0px", md: "64px" } : {},
       }}
     >
       <Container maxWidth="lg" sx={{ px: 1 }}>
