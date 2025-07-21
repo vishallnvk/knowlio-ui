@@ -169,6 +169,16 @@ export default function LicensingOptionsPage() {
         sx={{ flex: 1, overflow: "auto", p: 3, placeItems: "center" }}
       >
         <Container maxWidth="lg">
+          {/* Page Title and Description */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h4" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Manage Licensing Options
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Choose how your content can be used by AI systems.
+            </Typography>
+          </Box>
+
           {/* Success Message */}
           {submitSuccess && (
             <Alert severity="success" sx={{ mb: 3 }}>

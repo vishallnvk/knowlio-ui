@@ -1,10 +1,12 @@
 "use client";
 
 import { Box, Container, Typography, Link as MuiLink } from "@mui/material";
+import { useAuth } from "./AuthProvider";
 import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { user } = useAuth();
 
   return (
     <Box
@@ -15,13 +17,14 @@ export default function Footer() {
         backgroundColor: "background.paper",
         borderTop: 1,
         borderColor: "divider",
+        marginLeft: user ? { xs: "0px", md: "64px" } : {},
       }}
     >
       <Container maxWidth="lg" sx={{ px: 1 }}>
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             flexWrap: "wrap",
             gap: 2,
