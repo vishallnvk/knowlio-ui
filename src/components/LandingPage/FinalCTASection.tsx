@@ -110,29 +110,6 @@ function FinalCTASection({ handleGetStarted }: FinalCTASectionProps) {
             >
               Get Started Today
             </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              sx={{
-                borderColor: "#4b5563",
-                color: "#d1d5db",
-                px: 6,
-                py: 2,
-                fontSize: "1.125rem",
-                fontWeight: 600,
-                borderRadius: 2,
-                textTransform: "none",
-                "&:hover": {
-                  borderColor: "#6b7280",
-                  bgcolor: "rgba(255, 255, 255, 0.05)",
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 8px 20px rgba(255, 255, 255, 0.1)",
-                },
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            >
-              Schedule Demo
-            </Button>
           </Stack>
         </Card>
       </Box>

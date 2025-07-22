@@ -128,6 +128,16 @@ export default function ContentList({ contentParams }: ContentListProps) {
     );
   }
 
+  if (!isLoading && allContent.length === 0) {
+    return (
+      <Box sx={{ width: "100%", py: 4, textAlign: "center" }}>
+        <Typography variant="h6" color="text.secondary">
+          0 results found.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: "100%" }}>
       <Stack spacing={3}>

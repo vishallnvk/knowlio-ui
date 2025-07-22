@@ -606,6 +606,8 @@ export default function ContentBrowser() {
       </Box>
 
       <Dialog
+        fullWidth
+        maxWidth="lg"
         open={onAddBook}
         onClose={() => setOnAddBook(false)}
         sx={{ backdropFilter: "blur(5px)" }}

@@ -52,32 +52,6 @@ function HeaderSection({
           </Typography>
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }} alignItems="center">
             <Button
-              variant="outlined"
-              href={user ? "/dashboard" : "/login"}
-              size="small"
-              sx={{
-                bgcolor: "#fff",
-                color: "#333",
-                p: "3px 12px",
-                textTransform: "none",
-                fontWeight: 500,
-                borderColor: "#ccc",
-                borderRadius: "6px",
-                "&:hover": {
-                  bgcolor: "#333",
-                  color: "#fff",
-                  transform: "translateY(-2px) scale(1.05)",
-                  boxShadow: "0 8px 20px rgba(51, 51, 51, 0.4)",
-                },
-                "&:active": {
-                  transform: "translateY(0) scale(0.98)",
-                },
-                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            >
-              {user ? "Dashboard" : "Sign in"}
-            </Button>
-            <Button
               variant="contained"
               onClick={handleGetStarted}
               size="small"
