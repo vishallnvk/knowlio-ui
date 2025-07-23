@@ -77,7 +77,6 @@ function ProblemSection() {
               description:
                 "Life-critical decisions demand peer-reviewed, authoritative medical sources — not random health blogs or outdated information.",
               color: "#dc2626",
-              bgColor: "#fef2f2",
               borderColor: "#fee2e2",
             },
             {
@@ -86,8 +85,6 @@ function ProblemSection() {
               description:
                 "Justice depends on reliable legal precedents and statutes — not scraped content that may contain errors or bias.",
               color: "#ea580c",
-              bgColor: "#fff7ed",
-              borderColor: "#fed7aa",
             },
             {
               icon: School,
@@ -95,8 +92,6 @@ function ProblemSection() {
               description:
                 "Learning requires fact-checked, expert-reviewed content — not misinformation or clickbait that pollutes knowledge.",
               color: "#2563eb",
-              bgColor: "#eff6ff",
-              borderColor: "#bfdbfe",
             },
           ].map((item, index) => (
             <Grid size={{ xs: 12, md: 4 }} key={index}>
@@ -125,8 +120,7 @@ function ProblemSection() {
                   sx={{
                     p: 4,
                     height: "100%",
-                    border: `1px solid ${item.borderColor}`,
-                    bgcolor: item.bgColor,
+                    border: `1px solid #e5e7eb`,
                     "&:hover": {
                       boxShadow: 3,
                       transform: "translateY(-8px) scale(1.02)",
@@ -167,20 +161,12 @@ function ProblemSection() {
                         variant="h6"
                         sx={{
                           fontWeight: 600,
-                          color:
-                            item.color.replace("#", "#").slice(0, 7) + "dd",
                           mb: 2,
                         }}
                       >
                         {item.title}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color:
-                            item.color.replace("#", "#").slice(0, 7) + "bb",
-                        }}
-                      >
+                      <Typography variant="body2">
                         {item.description}
                       </Typography>
                     </Box>
@@ -212,26 +198,19 @@ function ProblemSection() {
             sx={{
               mt: 6,
               p: 4,
-              bgcolor: "#fef2f2",
-              border: "1px solid #fecaca",
+              border: "1px solid #e5e7eb",
               textAlign: "center",
               "&:hover": {
                 transform: "translateY(-4px)",
-                boxShadow: "0 20px 40px rgba(220, 38, 38, 0.1)",
+                boxShadow: "0 20px 40px rgba(229, 231, 235)",
               },
               transition: "all 0.3s ease",
             }}
           >
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 700, color: "#dc2626", mb: 2 }}
-            >
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
               "You can't cure cancer with scraped internet data"
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "#7f1d1d", maxWidth: "800px", mx: "auto" }}
-            >
+            <Typography variant="body1" sx={{ maxWidth: "800px", mx: "auto" }}>
               AI is only as good as the data it's trained on. The internet,
               filled with outdated blogs, misinformation, and clickbait, is not
               a foundation for truth. Mission-critical domains require verified,

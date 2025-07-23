@@ -17,6 +17,9 @@ import {
   IconButton,
   Badge,
   Dialog,
+  Drawer,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { ContentParams } from "@/lib/api/content";
 import BookIcon from "@mui/icons-material/Book";
@@ -24,6 +27,7 @@ import AudiotrackIcon from "@mui/icons-material/Audiotrack";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import ContentList from "./ContentList";
 import AddBooksPage from "./add-books/page";
 
@@ -49,7 +53,13 @@ const licenseStatusOptions = [
 ];
 
 export default function ContentBrowser() {
+  const theme = useTheme();
+  const isLaptop = useMediaQuery(theme.breakpoints.down("lg")); // Hide filters panel below lg breakpoint
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Hide filters panel below sm breakpoint
+
   const [selectedTab, setSelectedTab] = useState(0);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+
   // Use refs for filter inputs to avoid re-renders
   const authorRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
@@ -123,6 +133,11 @@ export default function ContentBrowser() {
       title,
       licensing_status: licenseStatus,
     });
+
+    // Close drawer on mobile after applying filters
+    if (isLaptop) {
+      setFilterDrawerOpen(false);
+    }
   };
 
   const getContentParams = (): ContentParams => {
@@ -169,16 +184,312 @@ export default function ContentBrowser() {
 
   const getActiveFilterCount = () => {
     let count = 0;
-    if ((authorRef.current?.value || "").trim()) count++;
-    if ((yearRef.current?.value || "").trim()) count++;
-    if ((publisherRef.current?.value || "").trim()) count++;
-    if ((titleRef.current?.value || "").trim()) count++;
-    if (licenseStatus) count++;
+    if (appliedFilters.author && appliedFilters.author.trim()) count++;
+    if (appliedFilters.year) count++;
+    if (appliedFilters.publisher && appliedFilters.publisher.trim()) count++;
+    if (appliedFilters.title && appliedFilters.title.trim()) count++;
+    if (
+      appliedFilters.licensing_status &&
+      appliedFilters.licensing_status.trim()
+    )
+      count++;
     return count;
   };
 
   const isBookTab = contentTypes[selectedTab].value === "BOOK";
   const selectedType = contentTypes[selectedTab];
+
+  // Filter Panel Component (reusable for both sidebar and drawer)
+  const FilterPanel = ({ onClose }: { onClose?: () => void }) => (
+    <Box
+      sx={{
+        width: isLaptop ? 320 : 280,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Filters Header */}
+      <Box sx={{ p: 2.5, pb: 1.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <FilterListIcon sx={{ mt: "-2px" }} />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 500, color: "#111827", mr: 1 }}
+            >
+              Filters
+            </Typography>
+            {getActiveFilterCount() > 0 && (
+              <Badge
+                badgeContent={getActiveFilterCount()}
+                color="primary"
+                sx={{
+                  "& .MuiBadge-badge": {
+                    backgroundColor: selectedType.color,
+                    position: "relative",
+                    transform: "none",
+                    right: "auto",
+                    top: "auto",
+                  },
+                }}
+              >
+                <Box sx={{ width: 0, height: 0 }} />
+              </Badge>
+            )}
+          </Box>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            {hasActiveFilters() && (
+              <IconButton
+                size="small"
+                onClick={clearFilters}
+                sx={{ color: "#6b7280" }}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            )}
+            {onClose && (
+              <IconButton
+                size="small"
+                onClick={onClose}
+                sx={{ color: "#6b7280" }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      <Box sx={{ p: 2.5, pb: 1.5, flex: 1, overflow: "auto" }}>
+        {/* Author Filter */}
+        <TextField
+          fullWidth
+          label="Author"
+          variant="outlined"
+          inputRef={authorRef}
+          placeholder="Search by author name..."
+          size="small"
+          sx={{
+            mb: 3,
+            "& .MuiOutlinedInput-root": {
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: selectedType.color,
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: selectedType.color,
+            },
+          }}
+        />
+
+        {/* Year Published Filter */}
+        <TextField
+          fullWidth
+          label="Year Published"
+          variant="outlined"
+          inputRef={yearRef}
+          placeholder="e.g., 2023"
+          error={!!validationError}
+          helperText={validationError}
+          size="small"
+          sx={{
+            mb: 3,
+            "& .MuiOutlinedInput-root": {
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: selectedType.color,
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: selectedType.color,
+            },
+          }}
+        />
+
+        {/* Publisher Name Filter */}
+        <TextField
+          fullWidth
+          label="Publisher"
+          variant="outlined"
+          inputRef={publisherRef}
+          placeholder="Search by publisher..."
+          size="small"
+          sx={{
+            mb: 3,
+            "& .MuiOutlinedInput-root": {
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: selectedType.color,
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: selectedType.color,
+            },
+          }}
+        />
+
+        {/* Title Filter */}
+        <TextField
+          fullWidth
+          label="Title"
+          variant="outlined"
+          inputRef={titleRef}
+          placeholder="Search by book title..."
+          size="small"
+          sx={{
+            mb: 3,
+            "& .MuiOutlinedInput-root": {
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: selectedType.color,
+              },
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: selectedType.color,
+            },
+          }}
+        />
+
+        {/* License Status Filter */}
+        <FormControl size="small" fullWidth sx={{ mb: 4 }}>
+          <InputLabel sx={{ "&.Mui-focused": { color: selectedType.color } }}>
+            License Status
+          </InputLabel>
+          <Select
+            value={licenseStatus}
+            label="License Status"
+            onChange={(e) => setLicenseStatus(e.target.value)}
+            sx={{
+              borderRadius: "8px",
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: selectedType.color,
+              },
+            }}
+          >
+            {licenseStatusOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Search Buttons */}
+        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+          <Button
+            variant="contained"
+            onClick={applyFilters}
+            size="small"
+            sx={{
+              py: "6.75px",
+              flex: 0.65,
+              backgroundColor: "#000",
+              "&:hover": {
+                backgroundColor: "#000",
+                filter: "brightness(0.9)",
+              },
+            }}
+          >
+            Search
+          </Button>
+
+          <Button
+            variant="outlined"
+            onClick={clearFilters}
+            color="error"
+            sx={{
+              py: "6.75px",
+              flex: 0.35,
+            }}
+          >
+            Clear
+          </Button>
+        </Box>
+
+        {/* Active Filters Summary */}
+        {(appliedFilters.author ||
+          appliedFilters.year ||
+          appliedFilters.publisher ||
+          appliedFilters.title ||
+          appliedFilters.licensing_status) && (
+          <Card
+            sx={{
+              backgroundColor: "#f8fafc",
+              border: `1px solid ${selectedType.color}20`,
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: "#111827", mb: 2 }}
+              >
+                Active Filters
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {appliedFilters.author && (
+                  <Chip
+                    label={`Author: ${appliedFilters.author}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: `${selectedType.color}15`,
+                      color: selectedType.color,
+                    }}
+                  />
+                )}
+                {appliedFilters.year && (
+                  <Chip
+                    label={`Year: ${appliedFilters.year}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: `${selectedType.color}15`,
+                      color: selectedType.color,
+                    }}
+                  />
+                )}
+                {appliedFilters.publisher && (
+                  <Chip
+                    label={`Publisher: ${appliedFilters.publisher}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: `${selectedType.color}15`,
+                      color: selectedType.color,
+                    }}
+                  />
+                )}
+                {appliedFilters.title && (
+                  <Chip
+                    label={`Title: ${appliedFilters.title}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: `${selectedType.color}15`,
+                      color: selectedType.color,
+                    }}
+                  />
+                )}
+                {appliedFilters.licensing_status && (
+                  <Chip
+                    label={`License: ${
+                      licenseStatusOptions.find(
+                        (s) => s.value === appliedFilters.licensing_status
+                      )?.label
+                    }`}
+                    size="small"
+                    sx={{
+                      backgroundColor: `${selectedType.color}15`,
+                      color: selectedType.color,
+                    }}
+                  />
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+      </Box>
+    </Box>
+  );
 
   return (
     <Box
@@ -196,10 +507,15 @@ export default function ContentBrowser() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? 2 : 0,
           }}
         >
           <Box>
-            <Typography variant="h5">
+            <Typography
+              variant="h5"
+              sx={{ textAlign: isMobile ? "center" : "left" }}
+            >
               License{" "}
               {selectedType.value.charAt(0) +
                 selectedType.value.slice(1).toLowerCase()}
@@ -280,8 +596,8 @@ export default function ContentBrowser() {
 
       {/* Main Content Area */}
       <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Left Panel - Filters */}
-        {isBookTab && (
+        {/* Left Panel - Filters (Desktop Only) */}
+        {isBookTab && !isLaptop && (
           <Paper
             sx={{
               m: 3,
@@ -292,281 +608,18 @@ export default function ContentBrowser() {
               borderRadius: "16px",
             }}
           >
-            {/* Filters Header */}
-            <Box sx={{ p: 2.5, pb: 1.5 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <FilterListIcon sx={{ mt: "-1px" }} />
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 500, color: "#111827", mr: 1 }}
-                  >
-                    Filters
-                  </Typography>
-                  {getActiveFilterCount() > 0 && (
-                    <Badge
-                      badgeContent={getActiveFilterCount()}
-                      color="primary"
-                      sx={{
-                        "& .MuiBadge-badge": {
-                          backgroundColor: selectedType.color,
-                          position: "relative",
-                          transform: "none",
-                          right: "auto",
-                          top: "auto",
-                        },
-                      }}
-                    >
-                      <Box sx={{ width: 0, height: 0 }} />
-                    </Badge>
-                  )}
-                </Box>
-                {hasActiveFilters() && (
-                  <IconButton
-                    size="small"
-                    onClick={clearFilters}
-                    sx={{ color: "#6b7280" }}
-                  >
-                    <ClearIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
-            </Box>
-
-            <Box sx={{ p: 2.5, pb: 1.5, flex: 1, overflow: "auto" }}>
-              {/* Author Filter */}
-              <TextField
-                fullWidth
-                label="Author"
-                variant="outlined"
-                inputRef={authorRef}
-                placeholder="Search by author name..."
-                size="small"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: selectedType.color,
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: selectedType.color,
-                  },
-                }}
-              />
-
-              {/* Year Published Filter */}
-              <TextField
-                fullWidth
-                label="Year Published"
-                variant="outlined"
-                inputRef={yearRef}
-                placeholder="e.g., 2023"
-                error={!!validationError}
-                helperText={validationError}
-                size="small"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: selectedType.color,
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: selectedType.color,
-                  },
-                }}
-              />
-
-              {/* Publisher Name Filter */}
-              <TextField
-                fullWidth
-                label="Publisher"
-                variant="outlined"
-                inputRef={publisherRef}
-                placeholder="Search by publisher..."
-                size="small"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: selectedType.color,
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: selectedType.color,
-                  },
-                }}
-              />
-
-              {/* Title Filter */}
-              <TextField
-                fullWidth
-                label="Title"
-                variant="outlined"
-                inputRef={titleRef}
-                placeholder="Search by book title..."
-                size="small"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: selectedType.color,
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: selectedType.color,
-                  },
-                }}
-              />
-
-              {/* License Status Filter */}
-              <FormControl size="small" fullWidth sx={{ mb: 4 }}>
-                <InputLabel
-                  sx={{ "&.Mui-focused": { color: selectedType.color } }}
-                >
-                  License Status
-                </InputLabel>
-                <Select
-                  value={licenseStatus}
-                  label="License Status"
-                  onChange={(e) => setLicenseStatus(e.target.value)}
-                  sx={{
-                    borderRadius: "8px",
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: selectedType.color,
-                    },
-                  }}
-                >
-                  {licenseStatusOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Search Buttons */}
-              <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-                <Button
-                  variant="contained"
-                  onClick={applyFilters}
-                  size="small"
-                  sx={{
-                    py: "6.75px",
-                    flex: 0.65,
-                    backgroundColor: "#000",
-                    "&:hover": {
-                      backgroundColor: "#000",
-                      filter: "brightness(0.9)",
-                    },
-                  }}
-                >
-                  Search
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  onClick={clearFilters}
-                  color="error"
-                  sx={{
-                    py: "6.75px",
-                    flex: 0.35,
-                  }}
-                >
-                  Clear
-                </Button>
-              </Box>
-
-              {/* Active Filters Summary */}
-              {(appliedFilters.author ||
-                appliedFilters.year ||
-                appliedFilters.publisher ||
-                appliedFilters.title ||
-                appliedFilters.licensing_status) && (
-                <Card
-                  sx={{
-                    backgroundColor: "#f8fafc",
-                    border: `1px solid ${selectedType.color}20`,
-                  }}
-                >
-                  <CardContent sx={{ p: 2 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{ fontWeight: 600, color: "#111827", mb: 2 }}
-                    >
-                      Active Filters
-                    </Typography>
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                    >
-                      {appliedFilters.author && (
-                        <Chip
-                          label={`Author: ${appliedFilters.author}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${selectedType.color}15`,
-                            color: selectedType.color,
-                          }}
-                        />
-                      )}
-                      {appliedFilters.year && (
-                        <Chip
-                          label={`Year: ${appliedFilters.year}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${selectedType.color}15`,
-                            color: selectedType.color,
-                          }}
-                        />
-                      )}
-                      {appliedFilters.publisher && (
-                        <Chip
-                          label={`Publisher: ${appliedFilters.publisher}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${selectedType.color}15`,
-                            color: selectedType.color,
-                          }}
-                        />
-                      )}
-                      {appliedFilters.title && (
-                        <Chip
-                          label={`Title: ${appliedFilters.title}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${selectedType.color}15`,
-                            color: selectedType.color,
-                          }}
-                        />
-                      )}
-                      {appliedFilters.licensing_status && (
-                        <Chip
-                          label={`License: ${
-                            licenseStatusOptions.find(
-                              (s) => s.value === appliedFilters.licensing_status
-                            )?.label
-                          }`}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${selectedType.color}15`,
-                            color: selectedType.color,
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
-              )}
-            </Box>
+            <FilterPanel />
           </Paper>
         )}
+
+        {/* Filter Drawer (Laptop) */}
+        <Drawer
+          anchor="left"
+          open={filterDrawerOpen}
+          onClose={() => setFilterDrawerOpen(false)}
+        >
+          <FilterPanel onClose={() => setFilterDrawerOpen(false)} />
+        </Drawer>
 
         {/* Right Panel - Content List */}
         <Box
@@ -578,17 +631,63 @@ export default function ContentBrowser() {
           }}
         >
           <Box sx={{ flex: 1, overflow: "auto", p: 3 }}>
-            {/* Add Books Button for Book tab */}
+            {/* Action Buttons */}
             {isBookTab && (
-              <Box display="flex" sx={{ mb: 3, placeContent: "end" }}>
+              <Box
+                display="flex"
+                sx={{
+                  mb: 3,
+                  placeContent: isMobile ? "center" : "end",
+                  gap: 2,
+                }}
+              >
+                {/* Filter Button (Mobile Only) */}
+                {isLaptop && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setFilterDrawerOpen(true)}
+                    sx={{
+                      p: isMobile ? "4px 12px" : "",
+                      color: "#000",
+                      borderColor: "#000",
+                      borderRadius: 1,
+                      "&:hover": {
+                        backgroundColor: "#eee",
+                      },
+                    }}
+                  >
+                    <Box display="flex" gap={1} alignItems="center">
+                      <FilterListIcon sx={{ mt: "-2px" }} />
+                      Filters
+                      {getActiveFilterCount() > 0 && (
+                        <Badge
+                          badgeContent={getActiveFilterCount()}
+                          color="primary"
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            right: "2px",
+                            "& .MuiBadge-badge": {
+                              backgroundColor: selectedType.color,
+                              fontSize: "0.625rem",
+                              minWidth: 16,
+                              height: 16,
+                            },
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Button>
+                )}
+
                 <Button
                   variant="contained"
-                  // href="/dashboard/add-books"
                   onClick={() => setOnAddBook(true)}
                   sx={{
+                    p: isMobile ? "4px 12px" : "",
                     backgroundColor: "#000",
+                    borderRadius: 1,
                     "&:hover": {
-                      backgroundColor: "#000",
                       filter: "brightness(0.9)",
                     },
                   }}

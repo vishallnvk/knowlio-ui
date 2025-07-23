@@ -192,26 +192,19 @@ function PublisherSection() {
           sx={{
             mt: 6,
             p: 4,
-            bgcolor: "#f0fdf4",
-            border: "1px solid #bbf7d0",
+            border: "1px solid #e5e7eb",
             textAlign: "center",
             "&:hover": {
               transform: "translateY(-4px)",
-              boxShadow: "0 20px 40px rgba(16, 185, 129, 0.1)",
+              boxShadow: "0 20px 40px rgba(229, 231, 235)",
             },
             transition: "all 0.3s ease",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: "#166534", mb: 2 }}
-          >
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
             Publishers are not AI-ready. We make them AI-ready.
           </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#15803d", maxWidth: "700px", mx: "auto" }}
-          >
+          <Typography variant="body1" sx={{ maxWidth: "700px", mx: "auto" }}>
             Most content creators — from book publishers to academic journals —
             are locked out of the AI economy. Their data is unstructured,
             siloed, and unlicensed. Knowlio gives publishers a turnkey solution.
