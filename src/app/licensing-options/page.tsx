@@ -116,10 +116,10 @@ export default function LicensingOptionsPage() {
   const handleSubmit = async () => {
     const selectedOptions = licensingOptions.filter((option) => option.enabled);
 
-    if (selectedOptions.length === 0) {
-      setSubmitError("Please enable at least one licensing option to continue");
-      return;
-    }
+    // if (selectedOptions.length === 0) {
+    //   setSubmitError("Please enable at least one licensing option to continue");
+    //   return;
+    // }
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -302,9 +302,12 @@ export default function LicensingOptionsPage() {
                 option{enabledCount !== 1 ? "s" : ""} for your content.
               </Typography>
             ) : (
+              // <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              //   No licensing options selected. Please choose at least one option
+              //   to proceed.
+              // </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                No licensing options selected. Please choose at least one option
-                to proceed.
+                No licensing options selected for your content.
               </Typography>
             )}
 
@@ -314,7 +317,8 @@ export default function LicensingOptionsPage() {
               color="primary"
               size="large"
               onClick={handleSubmit}
-              disabled={isSubmitting || enabledCount === 0}
+              // disabled={isSubmitting || enabledCount === 0}
+              disabled={isSubmitting}
               sx={{ px: 6, py: 1.5, minWidth: 200 }}
             >
               {isSubmitting ? (
@@ -327,11 +331,11 @@ export default function LicensingOptionsPage() {
               )}
             </Button>
 
-            {enabledCount === 0 && (
+            {/* {enabledCount === 0 && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                 Select at least one licensing option above to continue.
               </Typography>
-            )}
+            )} */}
           </Paper>
         </Container>
       </Box>

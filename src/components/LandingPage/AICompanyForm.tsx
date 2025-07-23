@@ -4,11 +4,7 @@ import {
   Button,
   Dialog,
   DialogContent,
-  FormControl,
-  FormControlLabel,
   IconButton,
-  Radio,
-  RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
@@ -17,7 +13,6 @@ import React, { FormEvent } from "react";
 interface FormData {
   name: string;
   email: string;
-  userType: string;
   dataDescription: string;
 }
 
@@ -106,25 +101,6 @@ function AICompanyForm({
                 },
               }}
             />
-            <FormControl sx={{ mb: 3, width: "100%" }}>
-              <RadioGroup
-                row
-                value={formData.userType}
-                onChange={(e) => handleInputChange("userType", e.target.value)}
-                sx={{ justifyContent: "center" }}
-              >
-                <FormControlLabel
-                  value="Rights holder"
-                  control={<Radio />}
-                  label="Rights holder"
-                />
-                <FormControlLabel
-                  value="AI company"
-                  control={<Radio />}
-                  label="AI company"
-                />
-              </RadioGroup>
-            </FormControl>
             <TextField
               fullWidth
               label="Data description - data type, volume etc."

@@ -24,7 +24,6 @@ export default function Home() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    userType: "AI company",
     dataDescription: "",
   });
   const [snackbar, setSnackbar] = useState({
@@ -83,7 +82,6 @@ export default function Home() {
         setFormData({
           name: "",
           email: "",
-          userType: "AI company",
           dataDescription: "",
         });
       } else {

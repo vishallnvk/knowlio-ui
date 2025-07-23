@@ -13,6 +13,8 @@ import {
   Pagination,
   Skeleton,
   Stack,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 interface ContentListProps {
@@ -20,7 +22,13 @@ interface ContentListProps {
 }
 
 export default function ContentList({ contentParams }: ContentListProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Hide filters panel below sm breakpoint
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedKeywords, setExpandedKeywords] = useState<Set<string>>(
+    new Set()
+  );
   const itemsPerPage = 10;
 
   const {
@@ -70,6 +78,16 @@ export default function ContentList({ contentParams }: ContentListProps) {
     value: number
   ) => {
     setCurrentPage(value);
+  };
+
+  const toggleKeywords = (contentId: string) => {
+    const newExpanded = new Set(expandedKeywords);
+    if (newExpanded.has(contentId)) {
+      newExpanded.delete(contentId);
+    } else {
+      newExpanded.add(contentId);
+    }
+    setExpandedKeywords(newExpanded);
   };
 
   if (error) {
@@ -146,7 +164,8 @@ export default function ContentList({ contentParams }: ContentListProps) {
             key={item.content_id}
             sx={{
               display: "flex",
-              minHeight: 218,
+              flexDirection: isMobile ? "column" : "row",
+              minHeight: 242,
               "&:hover": {
                 boxShadow: 3,
                 transform: "translateY(-2px)",
@@ -159,9 +178,9 @@ export default function ContentList({ contentParams }: ContentListProps) {
               component="img"
               sx={{
                 p: "3px",
-                width: 200,
+                width: isMobile ? "100%" : 200,
                 objectFit: "cover",
-                borderRadius: "16px 0 0 16px",
+                borderRadius: isMobile ? "16px 16px 0 0" : "16px 0 0 16px",
               }}
               image={"https://placehold.co/200x150?text=Book"}
               alt={item.title}
@@ -177,7 +196,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
                   sx={{
                     fontWeight: 600,
                     color: "#1f2937",
-                    mb: 1,
+                    mb: 0.75,
                   }}
                 >
                   {item.title || "Unknown Title"}
@@ -186,9 +205,23 @@ export default function ContentList({ contentParams }: ContentListProps) {
                 <Typography
                   variant="body2"
                   color="text.secondary"
+                  sx={{ mb: 0.75 }}
+                >
+                  <span style={{ fontWeight: 500 }}>Auhtor: </span>
+                  {item.authors &&
+                  Array.isArray(item.authors) &&
+                  item.authors.length > 0
+                    ? `${item.authors.join(", ")}`
+                    : "Unknown"}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  {item.publisher || "Unknown Publisher"}
+                  <span style={{ fontWeight: 500 }}>Publisher: </span>
+                  {item.publisher || "Unknown"}
                 </Typography>
 
                 <Box
@@ -207,7 +240,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
                     sx={{ fontWeight: 500 }}
                   />
                   <Chip
-                    label={item.licensing_status}
+                    label={"LICENSE " + item.licensing_status}
                     size="small"
                     color={
                       item.licensing_status === "DISABLED" ? "error" : "success"
@@ -235,30 +268,41 @@ export default function ContentList({ contentParams }: ContentListProps) {
                         mb: 2,
                       }}
                     >
-                      {item.keywords
-                        .slice(0, 3)
-                        .map((keyword: string, index: number) => (
-                          <Chip
-                            key={`${item.content_id}-keyword-${index}`}
-                            label={keyword}
-                            size="small"
-                            variant="outlined"
-                            sx={{
-                              fontSize: "0.75rem",
-                              backgroundColor: "#f8fafc",
-                              borderColor: "#e2e8f0",
-                            }}
-                          />
-                        ))}
-                      {item.keywords.length > 3 && (
+                      {(expandedKeywords.has(item.content_id)
+                        ? item.keywords
+                        : item.keywords.slice(0, 3)
+                      ).map((keyword: string, index: number) => (
                         <Chip
-                          label={`+${item.keywords.length - 3} more`}
+                          key={`${item.content_id}-keyword-${index}`}
+                          label={keyword}
                           size="small"
                           variant="outlined"
                           sx={{
                             fontSize: "0.75rem",
+                            backgroundColor: "#f8fafc",
+                            borderColor: "#e2e8f0",
+                          }}
+                        />
+                      ))}
+                      {item.keywords.length > 3 && (
+                        <Chip
+                          label={
+                            expandedKeywords.has(item.content_id)
+                              ? "Show less"
+                              : `+${item.keywords.length - 3} more`
+                          }
+                          size="small"
+                          variant="outlined"
+                          onClick={() => toggleKeywords(item.content_id)}
+                          sx={{
+                            fontSize: "0.75rem",
                             backgroundColor: "#f1f5f9",
                             borderColor: "#cbd5e1",
+                            cursor: "pointer",
+                            "&:hover": {
+                              backgroundColor: "#e2e8f0",
+                              borderColor: "#94a3b8",
+                            },
                           }}
                         />
                       )}
