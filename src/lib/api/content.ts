@@ -58,10 +58,10 @@ export interface ContentFilterResponse {
 // Content parameters interface for UI components
 export interface ContentParams {
   type: string;
-  year?: number;
+  year?: string;
   title?: string;
   licensing_status?: string;
-  author?: string;
+  authors?: string;
   publisher?: string;
   limit: number;
 }

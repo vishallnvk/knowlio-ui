@@ -69,8 +69,8 @@ export default function ContentBrowser() {
   const [onAddBook, setOnAddBook] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<Partial<ContentParams>>({
-    author: "",
-    year: undefined,
+    authors: "",
+    year: "",
     publisher: "",
     title: "",
     licensing_status: "",
@@ -87,8 +87,8 @@ export default function ContentBrowser() {
     setLicenseStatus("");
 
     setAppliedFilters({
-      author: "",
-      year: undefined,
+      authors: "",
+      year: "",
       publisher: "",
       title: "",
       licensing_status: "",
@@ -104,8 +104,8 @@ export default function ContentBrowser() {
     setLicenseStatus("");
 
     setAppliedFilters({
-      author: "",
-      year: undefined,
+      authors: "",
+      year: "",
       publisher: "",
       title: "",
       licensing_status: "",
@@ -127,8 +127,8 @@ export default function ContentBrowser() {
 
     setValidationError("");
     setAppliedFilters({
-      author,
-      year: year ? parseInt(year) : undefined,
+      authors: author,
+      year: year || "",
       publisher,
       title,
       licensing_status: licenseStatus,
@@ -150,7 +150,7 @@ export default function ContentBrowser() {
     // Only add filters for Book type and only if they have values
     if (selectedType.value === "BOOK") {
       if (appliedFilters.year) {
-        params.year = appliedFilters.year;
+        params.year = appliedFilters.year.toString();
       }
       if (appliedFilters.title && appliedFilters.title.trim()) {
         params.title = appliedFilters.title.trim();
@@ -161,8 +161,8 @@ export default function ContentBrowser() {
       ) {
         params.licensing_status = appliedFilters.licensing_status;
       }
-      if (appliedFilters.author && appliedFilters.author.trim()) {
-        params.author = appliedFilters.author.trim();
+      if (appliedFilters.authors && appliedFilters.authors.trim()) {
+        params.authors = appliedFilters.authors.trim();
       }
       if (appliedFilters.publisher && appliedFilters.publisher.trim()) {
         params.publisher = appliedFilters.publisher.trim();
@@ -184,7 +184,7 @@ export default function ContentBrowser() {
 
   const getActiveFilterCount = () => {
     let count = 0;
-    if (appliedFilters.author && appliedFilters.author.trim()) count++;
+    if (appliedFilters.authors && appliedFilters.authors.trim()) count++;
     if (appliedFilters.year) count++;
     if (appliedFilters.publisher && appliedFilters.publisher.trim()) count++;
     if (appliedFilters.title && appliedFilters.title.trim()) count++;
@@ -410,7 +410,7 @@ export default function ContentBrowser() {
         </Box>
 
         {/* Active Filters Summary */}
-        {(appliedFilters.author ||
+        {(appliedFilters.authors ||
           appliedFilters.year ||
           appliedFilters.publisher ||
           appliedFilters.title ||
@@ -429,9 +429,9 @@ export default function ContentBrowser() {
                 Active Filters
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                {appliedFilters.author && (
+                {appliedFilters.authors && (
                   <Chip
-                    label={`Author: ${appliedFilters.author}`}
+                    label={`Author: ${appliedFilters.authors}`}
                     size="small"
                     sx={{
                       backgroundColor: `${selectedType.color}15`,
