@@ -35,14 +35,14 @@ export default function Profile() {
                 fontWeight: 500
               }}
             >
-              {user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+              {user.name?.charAt(0).toUpperCase() || user.username?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
             </Avatar>
             <Box sx={{ flex: 1 }}>
               <Typography variant="h4" sx={{ fontWeight: 500, mb: 1, color: '#111827' }}>
                 Profile
               </Typography>
               <Typography variant="body1" sx={{ color: '#6b7280', mb: 2 }}>
-                Manage your account information, {user.username || 'User'}
+                Manage your account information, {user.name || user.username || 'User'}
               </Typography>
               <Chip 
                 icon={<VerifiedIcon />} 
@@ -67,14 +67,16 @@ export default function Profile() {
               </Box>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <Box>
-                  <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 400, mb: 1, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
-                    Username
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: '#111827', fontWeight: 400 }}>
-                    {user.username || 'Not set'}
-                  </Typography>
-                </Box>
+                {user.name && (
+                  <Box>
+                    <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 400, mb: 1, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
+                      Name
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#111827', fontWeight: 400 }}>
+                      {user.name}
+                    </Typography>
+                  </Box>
+                )}
                 
                 {user.email && (
                   <Box>
