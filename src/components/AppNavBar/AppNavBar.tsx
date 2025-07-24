@@ -29,7 +29,6 @@ const navLinks = [
     href: "/licensing-options",
     icon: <ArticleOutlinedIcon />,
   },
-  { label: "About", href: "/about", icon: <InfoOutlinedIcon /> },
 ];
 
 const logoIcon = "/Knowlio_Logo_Icon.jpg";

@@ -219,29 +219,6 @@ function HeroSection({ handleGetStarted }: HeroSectionProps) {
                 >
                   Get Started
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    borderColor: "#d1d5db",
-                    color: "#6b7280",
-                    px: 4,
-                    py: 2,
-                    fontSize: "1.125rem",
-                    fontWeight: 600,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    "&:hover": {
-                      borderColor: "#9ca3af",
-                      bgcolor: "#f9fafb",
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
-                    },
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }}
-                >
-                  Learn More
-                </Button>
               </Stack>
             </Box>
 

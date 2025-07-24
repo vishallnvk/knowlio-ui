@@ -199,6 +199,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
                     mb: 0.75,
                   }}
                 >
+                  <span style={{ fontWeight: 500 }}>Title: </span>
                   {item.title || "Unknown Title"}
                 </Typography>
 
@@ -207,12 +208,21 @@ export default function ContentList({ contentParams }: ContentListProps) {
                   color="text.secondary"
                   sx={{ mb: 0.75 }}
                 >
-                  <span style={{ fontWeight: 500 }}>Auhtor: </span>
+                  <span style={{ fontWeight: 500 }}>Author: </span>
                   {item.authors &&
                   Array.isArray(item.authors) &&
                   item.authors.length > 0
                     ? `${item.authors.join(", ")}`
                     : "Unknown"}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 0.75 }}
+                >
+                  <span style={{ fontWeight: 500 }}>ISBN: </span>
+                  {item.isbn || "Unknown"}
                 </Typography>
 
                 <Typography
@@ -234,13 +244,13 @@ export default function ContentList({ contentParams }: ContentListProps) {
                   }}
                 >
                   <Chip
-                    label={item.type}
+                    label={`Type: ${item.type}`}
                     size="small"
                     variant="outlined"
                     sx={{ fontWeight: 500 }}
                   />
                   <Chip
-                    label={"LICENSE " + item.licensing_status}
+                    label={`License: ${item.licensing_status}`}
                     size="small"
                     color={
                       item.licensing_status === "DISABLED" ? "error" : "success"
@@ -249,7 +259,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
                   />
                   {item.year && (
                     <Chip
-                      label={item.year}
+                      label={`Year: ${item.year}`}
                       size="small"
                       variant="outlined"
                       sx={{ backgroundColor: "#f3f4f6" }}
@@ -260,71 +270,77 @@ export default function ContentList({ contentParams }: ContentListProps) {
                 {item.keywords &&
                   Array.isArray(item.keywords) &&
                   item.keywords.length > 0 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 0.5,
-                        flexWrap: "wrap",
-                        mb: 2,
-                      }}
-                    >
-                      {(expandedKeywords.has(item.content_id)
-                        ? item.keywords
-                        : item.keywords.slice(0, 3)
-                      ).map((keyword: string, index: number) => (
-                        <Chip
-                          key={`${item.content_id}-keyword-${index}`}
-                          label={keyword}
-                          size="small"
-                          variant="outlined"
-                          sx={{
-                            fontSize: "0.75rem",
-                            backgroundColor: "#f8fafc",
-                            borderColor: "#e2e8f0",
-                          }}
-                        />
-                      ))}
-                      {item.keywords.length > 3 && (
-                        <Chip
-                          label={
-                            expandedKeywords.has(item.content_id)
-                              ? "Show less"
-                              : `+${item.keywords.length - 3} more`
-                          }
-                          size="small"
-                          variant="outlined"
-                          onClick={() => toggleKeywords(item.content_id)}
-                          sx={{
-                            fontSize: "0.75rem",
-                            backgroundColor: "#f1f5f9",
-                            borderColor: "#cbd5e1",
-                            cursor: "pointer",
-                            "&:hover": {
-                              backgroundColor: "#e2e8f0",
-                              borderColor: "#94a3b8",
-                            },
-                          }}
-                        />
-                      )}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color: "#1f2937",
+                          mb: 1,
+                        }}
+                      >
+                        Keywords:
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 0.5,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {(expandedKeywords.has(item.content_id)
+                          ? item.keywords
+                          : item.keywords.slice(0, 3)
+                        ).map((keyword: string, index: number) => (
+                          <Chip
+                            key={`${item.content_id}-keyword-${index}`}
+                            label={keyword}
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                              fontSize: "0.75rem",
+                              backgroundColor: "#f8fafc",
+                              borderColor: "#e2e8f0",
+                            }}
+                          />
+                        ))}
+                        {item.keywords.length > 3 && (
+                          <Chip
+                            label={
+                              expandedKeywords.has(item.content_id)
+                                ? "Show less"
+                                : `+${item.keywords.length - 3} more`
+                            }
+                            size="small"
+                            variant="outlined"
+                            onClick={() => toggleKeywords(item.content_id)}
+                            sx={{
+                              fontSize: "0.75rem",
+                              backgroundColor: "#f1f5f9",
+                              borderColor: "#cbd5e1",
+                              cursor: "pointer",
+                              "&:hover": {
+                                backgroundColor: "#e2e8f0",
+                                borderColor: "#94a3b8",
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
                     </Box>
                   )}
 
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent: "flex-start",
                     alignItems: "center",
                     mt: "auto",
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
-                    Created: {new Date(item.created_at).toLocaleDateString()}
+                    Added: {new Date(item.created_at).toLocaleDateString()}
                   </Typography>
-                  {item.isbn && (
-                    <Typography variant="caption" color="text.secondary">
-                      ISBN: {item.isbn}
-                    </Typography>
-                  )}
                 </Box>
               </CardContent>
             </Box>
