@@ -10,6 +10,8 @@ export interface Content {
   content_id: string;
   training_status: string;
   publisher: string;
+  thumbnail_url?: string;
+  small_thumbnail_url?: string;
   keywords: string[];
   year: string;
   insert_time: string;

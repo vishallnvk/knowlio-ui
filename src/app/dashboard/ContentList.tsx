@@ -182,8 +182,19 @@ export default function ContentList({ contentParams }: ContentListProps) {
                 objectFit: "cover",
                 borderRadius: isMobile ? "16px 16px 0 0" : "16px 0 0 16px",
               }}
-              image={"https://placehold.co/200x150?text=Book"}
+              image={
+                item.thumbnail_url || 
+                item.small_thumbnail_url || 
+                "https://placehold.co/200x150?text=Book"
+              }
               alt={item.title}
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                if (target.src !== "https://placehold.co/200x150?text=Book") {
+                  target.src = "https://placehold.co/200x150?text=Book";
+                }
+              }}
             />
             <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
               <CardContent
