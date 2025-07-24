@@ -156,20 +156,65 @@ export default function AddBooksPage() {
       return;
     }
 
+    setSuccessMessage(`Processing ${booksToAdd.length} book(s)...`);
+    
+    let successCount = 0;
+    let errorCount = 0;
+    const totalBooks = booksToAdd.length;
+
     // Add books one by one
     for (const book of booksToAdd) {
-      addBookToLibrary(book.isbn, {
-        onSuccess: () => {
-          console.log(`Successfully added book: ${book.title}`);
-        },
-        onError: (error: any) => {
-          console.error("Error adding book:", error);
-          setIsbnError(`Failed to add book: ${book.title}`);
-        },
-      });
+      try {
+        await new Promise<void>((resolve, reject) => {
+          addBookToLibrary(book.isbn, {
+            onSuccess: () => {
+              successCount++;
+              console.log(`Successfully added book: ${book.title}`);
+              
+              // Update progress message
+              if (successCount + errorCount === totalBooks) {
+                // All books processed
+                if (errorCount === 0) {
+                  setSuccessMessage(`Successfully added ${successCount} book(s) to your library`);
+                } else {
+                  setSuccessMessage(`Added ${successCount} out of ${totalBooks} book(s) successfully`);
+                }
+              } else {
+                // Still processing
+                setSuccessMessage(`Processing ${booksToAdd.length} book(s)... (${successCount + errorCount}/${totalBooks} completed)`);
+              }
+              
+              resolve();
+            },
+            onError: (error: any) => {
+              errorCount++;
+              console.error("Error adding book:", error);
+              
+              // Update progress message
+              if (successCount + errorCount === totalBooks) {
+                // All books processed
+                if (successCount === 0) {
+                  setIsbnError(`Failed to add all books`);
+                  setSuccessMessage("");
+                } else {
+                  setSuccessMessage(`Added ${successCount} out of ${totalBooks} book(s) successfully`);
+                }
+              } else {
+                // Still processing
+                setSuccessMessage(`Processing ${booksToAdd.length} book(s)... (${successCount + errorCount}/${totalBooks} completed)`);
+              }
+              
+              resolve(); // Don't reject, just continue with next book
+            },
+          });
+        });
+      } catch (error) {
+        // This shouldn't happen since we resolve in both success and error cases
+        console.error("Unexpected error:", error);
+      }
     }
 
-    setSuccessMessage(`Processing ${booksToAdd.length} book(s)...`);
+    // Clear search results and ISBN after processing
     setSearchResults([]);
     setIsbn("");
   };
