@@ -106,7 +106,7 @@ export function AppNavBar() {
               </Tooltip>
 
               <div className="user-details">
-                <p>{user?.username}</p>
+                <p>{user?.name || user?.email}</p>
                 <p>{user?.email}</p>
               </div>
             </div>

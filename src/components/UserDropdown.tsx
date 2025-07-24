@@ -69,10 +69,10 @@ export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => vo
             display: { xs: 'none', sm: 'block' }
           }}
         >
-          {user.email}
+          {user.name || user.email}
         </Typography>
         <Avatar 
-          alt={user.email} 
+          alt={user.name || user.email} 
           src={user.avatarUrl || ''} 
           sx={{ 
             width: 36, 
@@ -84,7 +84,11 @@ export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => vo
             flexShrink: 0
           }}
         >
-          {user.email?.charAt(0).toUpperCase() || 'U'}
+          {user.firstName && user.lastName 
+            ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+            : user.name 
+            ? user.name.charAt(0).toUpperCase() 
+            : user.email?.charAt(0).toUpperCase() || 'U'}
         </Avatar>
         <KeyboardArrowDownIcon sx={{ fontSize: 18, color: '#6b7280', flexShrink: 0 }} />
       </Box>
@@ -122,7 +126,7 @@ export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => vo
               }}
             >
               <Avatar 
-                alt={user.email} 
+                alt={user.name || user.email} 
                 src={user.avatarUrl || ''} 
                 sx={{ 
                   width: 48, 
@@ -133,11 +137,15 @@ export function UserDropdown({ user, onLogout }: { user: any; onLogout: () => vo
                   fontSize: '1.25rem'
                 }}
               >
-                {user.email?.charAt(0).toUpperCase() || 'U'}
+                {user.firstName && user.lastName 
+                  ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+                  : user.name 
+                  ? user.name.charAt(0).toUpperCase() 
+                  : user.email?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
               <Box>
                 <Typography variant="body1" sx={{ fontWeight: 600, color: '#111827' }}>
-                  {user.username}
+                  {user.name || user.email}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#6b7280', wordBreak: 'break-word' }}>
                   {user.email}

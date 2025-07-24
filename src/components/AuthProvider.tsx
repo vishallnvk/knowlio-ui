@@ -10,6 +10,9 @@ import awsConfig from '../aws-config.json';
 interface User {
   username: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
 }
 
 interface AuthContextType {
@@ -84,11 +87,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkAuthState = async () => {
     try {
       const currentUser = await getCurrentUser();
+      const session = await fetchAuthSession();
+      
+      // Extract name information from user attributes
+      let firstName = '';
+      let lastName = '';
+      let fullName = '';
+      let email = '';
+      
+      // Try to get name from ID token if available
+      if (session.tokens?.idToken) {
+        const payload = session.tokens.idToken.payload;
+        
+        firstName = (payload.given_name as string) || '';
+        lastName = (payload.family_name as string) || '';
+        fullName = (payload.name as string) || '';
+        email = (payload.email as string) || '';
+        
+        // Also try alternative attribute names that might be present
+        if (!firstName && payload.first_name) {
+          firstName = payload.first_name as string;
+        }
+        if (!lastName && payload.last_name) {
+          lastName = payload.last_name as string;
+        }
+      }
+      
+      // Fallback to getting email from signInDetails if not in token
+      if (!email) {
+        email = currentUser.signInDetails?.loginId || '';
+      }
+      
+      // Compute display name with better fallback logic
+      let displayName = '';
+      if (firstName && lastName) {
+        displayName = `${firstName} ${lastName}`.trim();
+      } else if (firstName) {
+        displayName = firstName;
+      } else if (lastName) {
+        displayName = lastName;
+      } else if (fullName) {
+        displayName = fullName;
+      } else if (email && email.includes('@')) {
+        // Extract name from email (e.g., john.doe@example.com -> John Doe)
+        const emailName = email.split('@')[0];
+        displayName = emailName.split('.').map(part => 
+          part.charAt(0).toUpperCase() + part.slice(1)
+        ).join(' ');
+      } else {
+        // Last resort: use username, but this should rarely happen
+        displayName = currentUser.username;
+      }
+      
       setUser({
         username: currentUser.username,
-        email: currentUser.signInDetails?.loginId
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        name: displayName
       });
     } catch (error) {
+      console.error('Error checking auth state:', error);
       setUser(null);
     } finally {
       setLoading(false);
