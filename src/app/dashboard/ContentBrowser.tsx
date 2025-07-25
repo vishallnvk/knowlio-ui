@@ -637,7 +637,8 @@ export default function ContentBrowser() {
                 display="flex"
                 sx={{
                   mb: 3,
-                  placeContent: isMobile ? "center" : "end",
+                  justifyContent: isMobile ? "center" : "space-between",
+                  alignItems: "center",
                   gap: 2,
                 }}
               >
@@ -679,6 +680,19 @@ export default function ContentBrowser() {
                     </Box>
                   </Button>
                 )}
+
+                {/* Content Dashboard Title */}
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: "1.125rem",
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: isMobile ? "none" : "block",
+                  }}
+                >
+                  Content Dashboard
+                </Typography>
 
                 <Button
                   variant="contained"

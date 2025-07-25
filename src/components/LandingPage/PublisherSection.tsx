@@ -146,9 +146,41 @@ function PublisherSection() {
                     mx: "auto",
                     mb: 3,
                     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    animation: `float${index} 3s ease-in-out infinite`,
+                    "@keyframes float0": {
+                      "0%, 100%": { transform: "translateY(0)" },
+                      "50%": { transform: "translateY(-8px)" },
+                    },
+                    "@keyframes float1": {
+                      "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+                      "50%": { transform: "translateY(-6px) rotate(5deg)" },
+                    },
+                    "@keyframes float2": {
+                      "0%, 100%": { transform: "translateY(0) scale(1)" },
+                      "50%": { transform: "translateY(-10px) scale(1.05)" },
+                    },
                   }}
                 >
-                  <item.icon sx={{ color: "white", fontSize: 32 }} />
+                  <item.icon 
+                    sx={{ 
+                      color: "white", 
+                      fontSize: 32,
+                      animation: `iconRotate${index} 4s ease-in-out infinite`,
+                      "@keyframes iconRotate0": {
+                        "0%, 100%": { transform: "rotate(0deg)" },
+                        "25%": { transform: "rotate(3deg)" },
+                        "75%": { transform: "rotate(-3deg)" },
+                      },
+                      "@keyframes iconRotate1": {
+                        "0%, 100%": { transform: "scale(1)" },
+                        "50%": { transform: "scale(1.1)" },
+                      },
+                      "@keyframes iconRotate2": {
+                        "0%, 100%": { transform: "rotate(0deg) scale(1)" },
+                        "50%": { transform: "rotate(10deg) scale(1.1)" },
+                      },
+                    }}
+                  />
                 </Box>
                 <Typography
                   variant="h5"
@@ -161,7 +193,33 @@ function PublisherSection() {
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ color: item.color, fontWeight: 600 }}
+                  sx={{ 
+                    color: item.color, 
+                    fontWeight: 600,
+                    animation: `typewriter${index} 0.8s ease ${1.2 + index * 0.2}s forwards`,
+                    opacity: 0,
+                    "@keyframes typewriter0": {
+                      "0%": { opacity: 0, width: "0%" },
+                      "100%": { opacity: 1, width: "100%" },
+                    },
+                    "@keyframes typewriter1": {
+                      "0%": { opacity: 0, transform: "translateX(-10px)" },
+                      "100%": { opacity: 1, transform: "translateX(0)" },
+                    },
+                    "@keyframes typewriter2": {
+                      "0%": { opacity: 0, transform: "scale(0.8)" },
+                      "100%": { opacity: 1, transform: "scale(1)" },
+                    },
+                    ...(item.tagline.includes("revenue") && {
+                      "&:hover": {
+                        animation: "revenuePulse 0.6s ease infinite",
+                        "@keyframes revenuePulse": {
+                          "0%, 100%": { transform: "scale(1)" },
+                          "50%": { transform: "scale(1.05)" },
+                        },
+                      },
+                    }),
+                  }}
                 >
                   {item.tagline}
                 </Typography>
@@ -195,14 +253,34 @@ function PublisherSection() {
             border: "1px solid #e5e7eb",
             textAlign: "center",
             "&:hover": {
-              transform: "translateY(-4px)",
-              boxShadow: "0 20px 40px rgba(229, 231, 235)",
+              transform: "translateY(-4px) scale(1.01)",
+              boxShadow: "0 20px 40px rgba(229, 231, 235, 0.5)",
+              borderColor: "#6366f1",
             },
-            transition: "all 0.3s ease",
+            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            animation: "cardGlow 4s ease-in-out infinite",
+            "@keyframes cardGlow": {
+              "0%, 100%": { boxShadow: "0 0 0 rgba(99, 102, 241, 0)" },
+              "50%": { boxShadow: "0 0 20px rgba(99, 102, 241, 0.1)" },
+            },
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
-            Publishers are not AI-ready. We make them AI-ready.
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              fontWeight: 600, 
+              mb: 2,
+              "& .highlight": {
+                color: "#6366f1",
+                animation: "textPulse 2s ease-in-out infinite",
+                "@keyframes textPulse": {
+                  "0%, 100%": { opacity: 1 },
+                  "50%": { opacity: 0.7 },
+                },
+              },
+            }}
+          >
+            Publishers are not <span className="highlight">AI-ready</span>. We make them <span className="highlight">AI-ready</span>.
           </Typography>
           <Typography variant="body1" sx={{ maxWidth: "700px", mx: "auto" }}>
             Most content creators — from book publishers to academic journals —

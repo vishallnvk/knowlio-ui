@@ -1,39 +1,40 @@
 import {
   AutoAwesome,
   CheckCircle,
-  DataObject,
-  Update,
-  Verified,
   Speed,
   GpsFixed,
   TrendingUp,
+  Update,
 } from "@mui/icons-material";
 import { Box, Card, Container, Grid, Stack, Typography } from "@mui/material";
 import React from "react";
+import { 
+  AnimatedSection, 
+  AnimatedIcon,
+  createCardAnimation,
+  createEmojiAnimation,
+  createAccessibleAnimation,
+  ANIMATION_PRESETS,
+  emojiPulse,
+  emojiWiggle,
+  emojiFloat,
+  emojiScale,
+  sparkle,
+} from "../../utils/animations";
 
 function AICompanySection() {
+  const emojiAnimations = [
+    emojiPulse,
+    emojiWiggle,
+    emojiFloat,
+    emojiScale,
+  ];
+
   return (
     <Box sx={{ bgcolor: "#f9fafb", py: { xs: 8, md: 12 } }}>
       <Container maxWidth="lg">
         <Box textAlign="center" sx={{ mb: { xs: 6, md: 8 } }}>
-          <Box
-            sx={{
-              opacity: 0,
-              animation: "fadeInUp 0.8s ease 0.2s forwards",
-              animationTimeline: "view()",
-              animationRange: "entry 50% cover 50%",
-              "@keyframes fadeInUp": {
-                from: {
-                  opacity: 0,
-                  transform: "translateY(30px)",
-                },
-                to: {
-                  opacity: 1,
-                  transform: "translateY(0)",
-                },
-              },
-            }}
-          >
+          <AnimatedSection animation="FADE_UP" staggerIndex={0}>
             <Typography
               variant="h2"
               sx={{
@@ -45,25 +46,9 @@ function AICompanySection() {
             >
               For AI Companies
             </Typography>
-          </Box>
-          <Box
-            sx={{
-              opacity: 0,
-              animation: "fadeInUp 0.8s ease 0.4s forwards",
-              animationTimeline: "view()",
-              animationRange: "entry 50% cover 50%",
-              "@keyframes fadeInUp": {
-                from: {
-                  opacity: 0,
-                  transform: "translateY(20px)",
-                },
-                to: {
-                  opacity: 1,
-                  transform: "translateY(0)",
-                },
-              },
-            }}
-          >
+          </AnimatedSection>
+          
+          <AnimatedSection animation="FADE_UP" staggerIndex={1}>
             <Typography
               variant="body1"
               sx={{
@@ -75,28 +60,12 @@ function AICompanySection() {
             >
               Get access to the world's best data — licensed, structured, and updated daily
             </Typography>
-          </Box>
+          </AnimatedSection>
         </Box>
+
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box
-              sx={{
-                opacity: 0,
-                animation: "slideInLeft 0.8s ease 0.6s forwards",
-                animationTimeline: "view()",
-                animationRange: "entry 50% cover 50%",
-                "@keyframes slideInLeft": {
-                  from: {
-                    opacity: 0,
-                    transform: "translateX(-40px)",
-                  },
-                  to: {
-                    opacity: 1,
-                    transform: "translateX(0)",
-                  },
-                },
-              }}
-            >
+            <AnimatedSection animation="SLIDE_LEFT" staggerIndex={2}>
               <Card
                 sx={{
                   p: 4,
@@ -111,9 +80,20 @@ function AICompanySection() {
               >
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: 600, color: "#1a1a1a", mb: 3 }}
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: "#1a1a1a", 
+                    mb: 3,
+                    "& .emoji": {
+                      display: 'inline-block',
+                      animation: `${emojiPulse} 2000ms ease-in-out infinite`,
+                      '@media (prefers-reduced-motion: reduce)': {
+                        animation: 'none',
+                      },
+                    },
+                  }}
                 >
-                  🚀 10x Performance with Truth-Grounded AI
+                  <span className="emoji">🚀</span> 10x Performance with Truth-Grounded AI
                 </Typography>
                 <Typography
                   variant="body1"
@@ -124,62 +104,49 @@ function AICompanySection() {
                 </Typography>
                 <Stack spacing={2}>
                   {[
-                    "⚡ 10x faster training on clean data",
-                    "🎯 99.9% accuracy with verified sources", 
-                    "🛡️ Zero hallucination guarantee",
-                    "📊 Instant citations for every response",
-                  ].map((text, index) => (
-                    <Box
+                    { emoji: "⚡", text: "10x faster training on clean data" },
+                    { emoji: "🎯", text: "99.9% accuracy with verified sources" },
+                    { emoji: "🛡️", text: "Zero hallucination guarantee" },
+                    { emoji: "📊", text: "Instant citations for every response" },
+                  ].map((item, index) => (
+                    <AnimatedSection 
                       key={index}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        opacity: 0,
-                        animation: `slideInRight 0.6s ease ${
-                          0.8 + index * 0.2
-                        }s forwards`,
-                        "@keyframes slideInRight": {
-                          from: {
-                            opacity: 0,
-                            transform: "translateX(20px)",
-                          },
-                          to: {
-                            opacity: 1,
-                            transform: "translateX(0)",
-                          },
-                        },
-                      }}
+                      animation="SLIDE_RIGHT" 
+                      staggerIndex={3 + index}
                     >
-                      <CheckCircle sx={{ color: "#10b981", fontSize: 20 }} />
-                      <Typography variant="body2" sx={{ color: "#374151" }}>
-                        {text}
-                      </Typography>
-                    </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                        }}
+                      >
+                        <CheckCircle sx={{ color: "#10b981", fontSize: 20 }} />
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: "#374151",
+                            "& .emoji": {
+                              display: "inline-block",
+                              animation: `${emojiAnimations[index]} 1500ms ease-in-out infinite`,
+                              '@media (prefers-reduced-motion: reduce)': {
+                                animation: 'none',
+                              },
+                            },
+                          }}
+                        >
+                          <span className="emoji">{item.emoji}</span> {item.text}
+                        </Typography>
+                      </Box>
+                    </AnimatedSection>
                   ))}
                 </Stack>
               </Card>
-            </Box>
+            </AnimatedSection>
           </Grid>
+
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box
-              sx={{
-                opacity: 0,
-                animation: "slideInRight 0.8s ease 0.8s forwards",
-                animationTimeline: "view()",
-                animationRange: "entry 50% cover 50%",
-                "@keyframes slideInRight": {
-                  from: {
-                    opacity: 0,
-                    transform: "translateX(40px)",
-                  },
-                  to: {
-                    opacity: 1,
-                    transform: "translateX(0)",
-                  },
-                },
-              }}
-            >
+            <AnimatedSection animation="SLIDE_RIGHT" staggerIndex={7}>
               <Card
                 sx={{
                   p: 4,
@@ -210,62 +177,57 @@ function AICompanySection() {
                     {
                       icon: Speed,
                       text: "🚀 Lightning-fast inference with structured data",
+                      animation: "BREATHE" as const,
                     },
-                    { icon: GpsFixed, text: "🎯 Higher precision with expert-vetted content" },
-                    { icon: TrendingUp, text: "📈 Consistent performance across all domains" },
-                    { icon: Update, text: "⚡ Real-time updates keep AI current" },
+                    { 
+                      icon: GpsFixed, 
+                      text: "🎯 Higher precision with expert-vetted content",
+                      animation: "WIGGLE" as const,
+                    },
+                    { 
+                      icon: TrendingUp, 
+                      text: "📈 Consistent performance across all domains",
+                      animation: "FLOAT" as const,
+                    },
+                    { 
+                      icon: Update, 
+                      text: "⚡ Real-time updates keep AI current",
+                      animation: "PULSE" as const,
+                    },
                   ].map((item, index) => (
-                    <Box
+                    <AnimatedSection 
                       key={index}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        opacity: 0,
-                        animation: `slideInLeft 0.6s ease ${
-                          1 + index * 0.2
-                        }s forwards`,
-                        "@keyframes slideInLeft": {
-                          from: {
-                            opacity: 0,
-                            transform: "translateX(-20px)",
-                          },
-                          to: {
-                            opacity: 1,
-                            transform: "translateX(0)",
-                          },
-                        },
-                      }}
+                      animation="SLIDE_LEFT" 
+                      staggerIndex={8 + index}
                     >
-                      <item.icon sx={{ color: "#6366f1", fontSize: 20 }} />
-                      <Typography variant="body2" sx={{ color: "#374151" }}>
-                        {item.text}
-                      </Typography>
-                    </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                        }}
+                      >
+                        <AnimatedIcon animation={item.animation}>
+                          <item.icon 
+                            sx={{ 
+                              color: "#6366f1", 
+                              fontSize: 20,
+                            }}
+                          />
+                        </AnimatedIcon>
+                        <Typography variant="body2" sx={{ color: "#374151" }}>
+                          {item.text}
+                        </Typography>
+                      </Box>
+                    </AnimatedSection>
                   ))}
                 </Stack>
               </Card>
-            </Box>
+            </AnimatedSection>
           </Grid>
         </Grid>
-        <Box
-          sx={{
-            opacity: 0,
-            animation: "zoomIn 1s ease 1.2s forwards",
-            animationTimeline: "view()",
-            animationRange: "entry 50% cover 50%",
-            "@keyframes zoomIn": {
-              from: {
-                opacity: 0,
-                transform: "scale(0.9)",
-              },
-              to: {
-                opacity: 1,
-                transform: "scale(1)",
-              },
-            },
-          }}
-        >
+
+        <AnimatedSection animation="ZOOM_IN" staggerIndex={12}>
           <Card
             sx={{
               mt: 6,
@@ -281,18 +243,21 @@ function AICompanySection() {
               transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
-            <AutoAwesome
+            <Box
               sx={{
-                fontSize: 60,
-                mb: 3,
-                opacity: 0.9,
-                animation: "sparkle 2s ease-in-out infinite",
-                "@keyframes sparkle": {
-                  "0%, 100%": { transform: "rotate(0deg) scale(1)" },
-                  "50%": { transform: "rotate(180deg) scale(1.1)" },
-                },
+                ...createAccessibleAnimation({
+                  animation: `${sparkle} 2000ms ease-in-out infinite`,
+                }),
               }}
-            />
+            >
+              <AutoAwesome
+                sx={{
+                  fontSize: 60,
+                  mb: 3,
+                  opacity: 0.9,
+                }}
+              />
+            </Box>
             <Typography
               variant="h4"
               sx={{ fontWeight: 700, mb: 3, color: "inherit" }}
@@ -315,7 +280,7 @@ function AICompanySection() {
               to change the world.
             </Typography>
           </Card>
-        </Box>
+        </AnimatedSection>
       </Container>
     </Box>
   );
