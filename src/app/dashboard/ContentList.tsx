@@ -126,13 +126,22 @@ export default function ContentList({ contentParams }: ContentListProps) {
       <Box sx={{ width: "100%" }}>
         <Stack spacing={3}>
           {[...Array(2)].map((_, index) => (
-            <Card key={index} sx={{ display: "flex", minHeight: 218 }}>
-              <Skeleton
-                variant="rectangular"
-                width={200}
-                height={210}
-                sx={{ m: "3px", borderRadius: "16px 0 0 16px" }}
-              />
+            <Card key={index} sx={{ display: "flex", minHeight: 242 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  p: 2,
+                  minHeight: 242,
+                }}
+              >
+                <Skeleton
+                  variant="rectangular"
+                  width={150}
+                  height={180}
+                  sx={{ borderRadius: "12px" }}
+                />
+              </Box>
               <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
                 <CardContent sx={{ flex: 1 }}>
                   <Skeleton variant="text" width="60%" height={32} />
@@ -207,28 +216,39 @@ export default function ContentList({ contentParams }: ContentListProps) {
             >
               <EditIcon fontSize="small" />
             </IconButton>
-            <CardMedia
-              component="img"
+            <Box
               sx={{
-                p: "3px",
-                width: isMobile ? "100%" : 200,
-                objectFit: "cover",
-                borderRadius: isMobile ? "16px 16px 0 0" : "16px 0 0 16px",
+                display: "flex",
+                alignItems: "center",
+                p: 2,
+                minHeight: isMobile ? "auto" : 242,
               }}
-              image={
-                item.thumbnail_url || 
-                item.small_thumbnail_url || 
-                "https://placehold.co/200x150?text=Book"
-              }
-              alt={item.title}
-              onError={(e) => {
-                // Fallback to placeholder if image fails to load
-                const target = e.target as HTMLImageElement;
-                if (target.src !== "https://placehold.co/200x150?text=Book") {
-                  target.src = "https://placehold.co/200x150?text=Book";
+            >
+              <CardMedia
+                component="img"
+                sx={{
+                  width: isMobile ? "calc(100% - 16px)" : 150,
+                  height: isMobile ? 200 : 180,
+                  objectFit: "cover",
+                  borderRadius: "12px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #e5e7eb",
+                }}
+                image={
+                  item.thumbnail_url || 
+                  item.small_thumbnail_url || 
+                  "https://placehold.co/150x180?text=Book"
                 }
-              }}
-            />
+                alt={item.title}
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== "https://placehold.co/150x180?text=Book") {
+                    target.src = "https://placehold.co/150x180?text=Book";
+                  }
+                }}
+              />
+            </Box>
             <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
               <CardContent
                 sx={{ display: "flex", flexDirection: "column", flex: 1, p: 3 }}
