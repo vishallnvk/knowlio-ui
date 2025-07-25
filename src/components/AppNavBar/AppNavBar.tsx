@@ -6,6 +6,7 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import SupportIcon from "@mui/icons-material/Support";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
@@ -15,6 +16,8 @@ import { useAuth } from "../AuthProvider";
 import { useState } from "react";
 import { Backdrop, Tooltip } from "@mui/material";
 import { usePathname } from "next/navigation";
+import { useSupportModal } from "../../hooks/useSupportModal";
+import { SupportModal } from "../Support";
 import "./app-nav-bar.css";
 
 const navLinks = [
@@ -29,6 +32,7 @@ const navLinks = [
     href: "/licensing-options",
     icon: <ArticleOutlinedIcon />,
   },
+  { label: "Support", href: "#", icon: <SupportIcon />, isModal: true },
 ];
 
 const logoIcon = "/Knowlio_Logo_Icon.jpg";
@@ -39,6 +43,13 @@ export function AppNavBar() {
   const { user, signOutUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
+  const { isOpen, openModal, closeModal } = useSupportModal();
+
+  const handleNavItemClick = (item: any) => {
+    if (item.isModal) {
+      openModal();
+    }
+  };
 
   return (
     user && (
@@ -77,15 +88,26 @@ export function AppNavBar() {
                 classes={{ tooltip: "nav-tooltip" }}
               >
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className={`item ${
-                      pathname.startsWith(item.href) ? "active" : ""
-                    }`}
-                  >
-                    <span>{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
+                  {item.isModal ? (
+                    <div
+                      className="item"
+                      onClick={() => handleNavItemClick(item)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </div>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`item ${
+                        pathname.startsWith(item.href) ? "active" : ""
+                      }`}
+                    >
+                      <span>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  )}
                 </li>
               </Tooltip>
             ))}
@@ -157,6 +179,8 @@ export function AppNavBar() {
           onClick={() => setIsExpanded(false)}
           sx={{ zIndex: 100 }}
         />
+        
+        <SupportModal isOpen={isOpen} onClose={closeModal} />
       </>
     )
   );

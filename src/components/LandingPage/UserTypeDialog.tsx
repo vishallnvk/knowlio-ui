@@ -49,9 +49,6 @@ function UserTypeDialog({
               variant="h4"
               sx={{ fontWeight: 700, color: "#1a1a1a", mb: 2 }}
             >
-              Choose Your Path
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#6b7280" }}>
               Select the option that best describes you
             </Typography>
           </Box>

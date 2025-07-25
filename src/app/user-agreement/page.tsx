@@ -31,10 +31,12 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CloseIcon from "@mui/icons-material/Close";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSupportModal } from "@/hooks/useSupportModal";
 
 export default function UserAgreementPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { openModal } = useSupportModal();
   const {
     data: userAgreementResponse,
     isLoading: isStatusLoading,
@@ -279,7 +281,7 @@ Once Available AI Rights have been established, they may be made available in ou
 
                   <Typography variant="body2" color="text.secondary">
                     Need help?{" "}
-                    <MuiLink href="#" underline="hover">
+                    <MuiLink href="#" underline="hover" onClick={(e) => { e.preventDefault(); openModal(); }}>
                       Contact Support
                     </MuiLink>
                   </Typography>
@@ -406,7 +408,7 @@ Once Available AI Rights have been established, they may be made available in ou
 
                   <Typography variant="body2" color="text.secondary">
                     Need help?{" "}
-                    <MuiLink href="#" underline="hover">
+                    <MuiLink href="#" underline="hover" onClick={(e) => { e.preventDefault(); openModal(); }}>
                       Contact Support
                     </MuiLink>
                   </Typography>

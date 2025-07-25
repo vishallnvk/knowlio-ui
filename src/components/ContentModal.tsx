@@ -358,7 +358,7 @@ export default function ContentModal({ open, onClose, content }: ContentModalPro
           <Card sx={{ mb: 2 }}>
             <CardContent>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Technical Details
+                Content Details
               </Typography>
               <Stack spacing={2}>
                 {/* File Key with Upload Section */}
