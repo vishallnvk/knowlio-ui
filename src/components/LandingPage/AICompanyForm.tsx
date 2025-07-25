@@ -59,7 +59,7 @@ function AICompanyForm({
               variant="h4"
               sx={{ fontWeight: 700, color: "#1a1a1a", mb: 2 }}
             >
-              Join the fair AI ecosystem
+              Join the performant AI ecosystem
             </Typography>
             <Typography variant="body1" sx={{ color: "#6b7280" }}>
               Share your details to get started

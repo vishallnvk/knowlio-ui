@@ -4,6 +4,9 @@ import {
   DataObject,
   Update,
   Verified,
+  Speed,
+  GpsFixed,
+  TrendingUp,
 } from "@mui/icons-material";
 import { Box, Card, Container, Grid, Stack, Typography } from "@mui/material";
 import React from "react";
@@ -70,8 +73,7 @@ function AICompanySection() {
                 mx: "auto",
               }}
             >
-              Train on the world's best data — licensed, structured, and updated
-              daily
+              Get access to the world's best data — licensed, structured, and updated daily
             </Typography>
           </Box>
         </Box>
@@ -111,20 +113,21 @@ function AICompanySection() {
                   variant="h5"
                   sx={{ fontWeight: 600, color: "#1a1a1a", mb: 3 }}
                 >
-                  Say goodbye to scraped noise
+                  🚀 10x Performance with Truth-Grounded AI
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ color: "#6b7280", mb: 4, lineHeight: 1.7 }}
                 >
-                  Say hello to verified signal. Build AI you can defend with
-                  audit-ready, legally sourced intelligence.
+                  Clean data = superior AI. Experience lightning-fast inference, 
+                  zero hallucinations, and precision that scales with verified intelligence.
                 </Typography>
                 <Stack spacing={2}>
                   {[
-                    "Audit-ready data provenance",
-                    "Legally sourced intelligence",
-                    "Defensible AI systems",
+                    "⚡ 10x faster training on clean data",
+                    "🎯 99.9% accuracy with verified sources", 
+                    "🛡️ Zero hallucination guarantee",
+                    "📊 Instant citations for every response",
                   ].map((text, index) => (
                     <Box
                       key={index}
@@ -193,23 +196,24 @@ function AICompanySection() {
                   variant="h5"
                   sx={{ fontWeight: 600, color: "#1a1a1a", mb: 3 }}
                 >
-                  Mission-critical domains
+                  💎 Quality Data = Superior AI Performance
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ color: "#6b7280", mb: 4, lineHeight: 1.7 }}
                 >
-                  Medicine, law, and science require verified, rights-owned, and
-                  continuously updated knowledge.
+                  Expert-vetted content delivers consistent, high-precision results. 
+                  Experience the difference when AI learns from the best sources.
                 </Typography>
                 <Stack spacing={2}>
                   {[
                     {
-                      icon: DataObject,
-                      text: "Structured, clean data formats",
+                      icon: Speed,
+                      text: "🚀 Lightning-fast inference with structured data",
                     },
-                    { icon: Verified, text: "Expert-curated content" },
-                    { icon: Update, text: "Regular content updates" },
+                    { icon: GpsFixed, text: "🎯 Higher precision with expert-vetted content" },
+                    { icon: TrendingUp, text: "📈 Consistent performance across all domains" },
+                    { icon: Update, text: "⚡ Real-time updates keep AI current" },
                   ].map((item, index) => (
                     <Box
                       key={index}
@@ -293,7 +297,7 @@ function AICompanySection() {
               variant="h4"
               sx={{ fontWeight: 700, mb: 3, color: "inherit" }}
             >
-              Let's power the miracles we've been waiting for
+              Let's power the AI miracles we've been waiting for
             </Typography>
             <Typography
               variant="body1"

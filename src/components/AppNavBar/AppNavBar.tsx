@@ -60,8 +60,10 @@ export function AppNavBar() {
           </button>
 
           <div className="nav-header">
-            <img src={logoIconText} alt="" />
-            <div>{isExpanded ? <></> : <img src={logoIcon} alt="" />}</div>
+            <Link href="/">
+              <img src={logoIconText} alt="" style={{ cursor: 'pointer' }} />
+            </Link>
+            <div>{isExpanded ? <></> : <Link href="/"><img src={logoIcon} alt="" style={{ cursor: 'pointer' }} /></Link>}</div>
           </div>
 
           <ul className="nav-items">

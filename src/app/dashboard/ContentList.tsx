@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useContent, ContentParams } from "@/lib/api/content";
+import { useContent, ContentParams, Content } from "@/lib/api/content";
 import {
   Box,
   Card,
@@ -15,7 +15,10 @@ import {
   Stack,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
+import { Edit as EditIcon } from "@mui/icons-material";
+import ContentModal from "@/components/ContentModal";
 
 interface ContentListProps {
   contentParams: ContentParams;
@@ -29,6 +32,8 @@ export default function ContentList({ contentParams }: ContentListProps) {
   const [expandedKeywords, setExpandedKeywords] = useState<Set<string>>(
     new Set()
   );
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const itemsPerPage = 10;
 
   const {
@@ -88,6 +93,16 @@ export default function ContentList({ contentParams }: ContentListProps) {
       newExpanded.add(contentId);
     }
     setExpandedKeywords(newExpanded);
+  };
+
+  const handleEditClick = (content: Content) => {
+    setSelectedContent(content);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedContent(null);
   };
 
   if (error) {
@@ -166,6 +181,7 @@ export default function ContentList({ contentParams }: ContentListProps) {
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
               minHeight: 242,
+              position: "relative",
               "&:hover": {
                 boxShadow: 3,
                 transform: "translateY(-2px)",
@@ -174,6 +190,23 @@ export default function ContentList({ contentParams }: ContentListProps) {
               transition: "all 0.2s ease-in-out",
             }}
           >
+            {/* Edit Button */}
+            <IconButton
+              onClick={() => handleEditClick(item)}
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1,
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 1)",
+                },
+              }}
+              size="small"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
             <CardMedia
               component="img"
               sx={{
@@ -383,6 +416,13 @@ export default function ContentList({ contentParams }: ContentListProps) {
           </Typography>
         </Box>
       )}
+
+      {/* Content Detail Modal */}
+      <ContentModal
+        open={modalOpen}
+        onClose={handleModalClose}
+        content={selectedContent}
+      />
     </Box>
   );
 }

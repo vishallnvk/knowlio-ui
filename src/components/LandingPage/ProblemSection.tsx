@@ -34,7 +34,7 @@ function ProblemSection() {
                 mb: 4,
               }}
             >
-              The Internet Wasn't Built for AI
+              The Internet wasn't built for AI
             </Typography>
           </Box>
           <Box
