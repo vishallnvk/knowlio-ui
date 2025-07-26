@@ -76,7 +76,7 @@ function FinalCTASection({ handleGetStarted }: FinalCTASectionProps) {
               onClick={handleGetStarted}
               endIcon={<ArrowForward />}
               sx={{
-                bgcolor: "#6366f1",
+                bgcolor: "#1877f2",
                 color: "white",
                 px: 6,
                 py: 2,
@@ -87,9 +87,9 @@ function FinalCTASection({ handleGetStarted }: FinalCTASectionProps) {
                 position: "relative",
                 overflow: "hidden",
                 "&:hover": {
-                  bgcolor: "#5855eb",
+                  bgcolor: "#1158c7",
                   transform: "translateY(-3px) scale(1.05)",
-                  boxShadow: "0 16px 32px rgba(99, 102, 241, 0.5)",
+                  boxShadow: "0 16px 32px rgba(24, 119, 242, 0.5)",
                 },
                 "&::before": {
                   content: '""',

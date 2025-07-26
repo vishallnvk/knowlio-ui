@@ -176,7 +176,7 @@ function HeroSection({ handleGetStarted }: HeroSectionProps) {
                   onClick={handleGetStarted}
                   endIcon={<ArrowForward />}
                   sx={{
-                    bgcolor: "#6366f1",
+                    bgcolor: "#1877f2",
                     color: "white",
                     px: 4,
                     py: 2,
@@ -187,9 +187,9 @@ function HeroSection({ handleGetStarted }: HeroSectionProps) {
                     position: "relative",
                     overflow: "hidden",
                     "&:hover": {
-                      bgcolor: "#5855eb",
+                      bgcolor: "#1158c7",
                       transform: "translateY(-3px) scale(1.02)",
-                      boxShadow: "0 12px 35px rgba(99, 102, 241, 0.4)",
+                      boxShadow: "0 12px 35px rgba(24, 119, 242, 0.4)",
                     },
                     "&:hover .arrow": {
                       transform: "translateX(5px)",
@@ -249,7 +249,7 @@ function HeroSection({ handleGetStarted }: HeroSectionProps) {
                     color: "#10b981",
                     text: "Verified Sources",
                   },
-                  { icon: Shield, color: "#6366f1", text: "Rights-Cleared" },
+                  { icon: Shield, color: "#1877f2", text: "Rights-Cleared" },
                   {
                     icon: Update,
                     color: "#f59e0b",

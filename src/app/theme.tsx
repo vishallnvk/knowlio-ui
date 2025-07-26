@@ -4,9 +4,9 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4A9B8E', // Authors Guild teal
-      light: '#6BB5A8',
-      dark: '#357A6F',
+      main: '#1877f2', // Facebook blue
+      light: '#4b93f5',
+      dark: '#1158c7',
     },
     secondary: {
       main: '#8B4513', // Warm brown/saddle brown
@@ -167,10 +167,10 @@ const theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#4A9B8E',
+              borderColor: '#1877f2',
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#4A9B8E',
+              borderColor: '#1877f2',
             },
           },
         },

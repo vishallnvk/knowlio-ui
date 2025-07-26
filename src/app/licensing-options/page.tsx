@@ -175,7 +175,7 @@ export default function LicensingOptionsPage() {
               Manage Licensing Options
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Choose how your content can be used by AI systems. Note: Individual content settings will override these default preferences.
+              Choose how your content can be used by AI systems. Individual content settings will override these default preferences.
             </Typography>
           </Box>
 

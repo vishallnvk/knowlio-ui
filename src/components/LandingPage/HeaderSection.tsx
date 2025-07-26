@@ -56,16 +56,16 @@ function HeaderSection({
               onClick={handleGetStarted}
               size="small"
               sx={{
-                bgcolor: "#6366f1",
+                bgcolor: "#1877f2",
                 color: "white",
                 p: "4px 12px",
                 textTransform: "none",
                 fontWeight: 500,
                 borderRadius: "6px",
                 "&:hover": {
-                  bgcolor: "#5855eb",
+                  bgcolor: "#1158c7",
                   transform: "translateY(-2px) scale(1.05)",
-                  boxShadow: "0 8px 20px rgba(99, 102, 241, 0.4)",
+                  boxShadow: "0 8px 20px rgba(24, 119, 242, 0.4)",
                 },
                 "&:active": {
                   transform: "translateY(0) scale(0.98)",

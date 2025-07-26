@@ -386,9 +386,9 @@ export default function ContentBrowser() {
             sx={{
               py: "6.75px",
               flex: 0.65,
-              backgroundColor: "#000",
+              backgroundColor: "#1877F2",
               "&:hover": {
-                backgroundColor: "#000",
+                backgroundColor: "#1877F2",
                 filter: "brightness(0.9)",
               },
             }}
@@ -642,66 +642,71 @@ export default function ContentBrowser() {
                   gap: 2,
                 }}
               >
-                {/* Filter Button (Mobile Only) */}
-                {isLaptop && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setFilterDrawerOpen(true)}
+                {/* Left Side - Content Dashboard Title and Filter Button */}
+                <Box display="flex" gap={2} alignItems="center">
+                  {/* Content Dashboard Title */}
+                  <Typography
+                    variant="h6"
                     sx={{
-                      p: isMobile ? "4px 12px" : "",
-                      color: "#000",
-                      borderColor: "#000",
-                      borderRadius: 1,
-                      "&:hover": {
-                        backgroundColor: "#eee",
-                      },
+                      fontSize: "1.125rem",
+                      fontWeight: 600,
+                      color: "#374151",
+                      display: isMobile ? "none" : "block",
                     }}
                   >
-                    <Box display="flex" gap={1} alignItems="center">
-                      <FilterListIcon sx={{ mt: "-2px" }} />
-                      Filters
-                      {getActiveFilterCount() > 0 && (
-                        <Badge
-                          badgeContent={getActiveFilterCount()}
-                          color="primary"
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            right: "2px",
-                            "& .MuiBadge-badge": {
-                              backgroundColor: selectedType.color,
-                              fontSize: "0.625rem",
-                              minWidth: 16,
-                              height: 16,
-                            },
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </Button>
-                )}
+                    Content Dashboard
+                  </Typography>
 
-                {/* Content Dashboard Title */}
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: "1.125rem",
-                    fontWeight: 600,
-                    color: "#374151",
-                    display: isMobile ? "none" : "block",
-                  }}
-                >
-                  Content Dashboard
-                </Typography>
+                  {/* Filter Button (Laptop Only) */}
+                  {isLaptop && (
+                    <Button
+                      variant="outlined"
+                      onClick={() => setFilterDrawerOpen(true)}
+                      sx={{
+                        p: isMobile ? "4px 12px" : "",
+                        color: "#000",
+                        borderColor: "#000",
+                        borderRadius: 1,
+                        "&:hover": {
+                          backgroundColor: "#eee",
+                        },
+                      }}
+                    >
+                      <Box display="flex" gap={1} alignItems="center">
+                        <FilterListIcon sx={{ mt: "-2px" }} />
+                        Filters
+                        {getActiveFilterCount() > 0 && (
+                          <Badge
+                            badgeContent={getActiveFilterCount()}
+                            color="primary"
+                            sx={{
+                              position: "absolute",
+                              top: 0,
+                              right: "2px",
+                              "& .MuiBadge-badge": {
+                                backgroundColor: selectedType.color,
+                                fontSize: "0.625rem",
+                                minWidth: 16,
+                                height: 16,
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Button>
+                  )}
+                </Box>
 
+                {/* Right Side - Add Books Button */}
                 <Button
                   variant="contained"
                   onClick={() => setOnAddBook(true)}
                   sx={{
                     p: isMobile ? "4px 12px" : "",
-                    backgroundColor: "#000",
+                    backgroundColor: "#1877F2",
                     borderRadius: 1,
                     "&:hover": {
+                      backgroundColor: "#1877F2",
                       filter: "brightness(0.9)",
                     },
                   }}

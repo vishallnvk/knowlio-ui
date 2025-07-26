@@ -127,16 +127,16 @@ function AICompanyForm({
               fullWidth
               variant="contained"
               sx={{
-                bgcolor: "#6366f1",
+                bgcolor: "#1877f2",
                 color: "white",
                 py: 2,
                 fontSize: "1.125rem",
                 fontWeight: 600,
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: "#5855eb",
+                  bgcolor: "#1158c7",
                   transform: "translateY(-2px) scale(1.02)",
-                  boxShadow: "0 12px 24px rgba(99, 102, 241, 0.4)",
+                  boxShadow: "0 12px 24px rgba(24, 119, 242, 0.4)",
                 },
                 mb: 3,
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
