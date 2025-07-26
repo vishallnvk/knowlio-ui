@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,13 +19,21 @@ import {
   Stack,
   Alert,
   LinearProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  FormHelperText,
+  CircularProgress,
 } from '@mui/material';
 import { 
   Close as CloseIcon, 
   CloudUpload as CloudUploadIcon,
   Description as DescriptionIcon,
+  Edit as EditIcon,
+  Save as SaveIcon,
 } from '@mui/icons-material';
-import { Content } from '@/lib/api/content';
+import { Content, updateContentAttribute } from '@/lib/api/content';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ContentModalProps {
   open: boolean;
@@ -92,13 +100,49 @@ const STATUS_CONFIG = {
   warning: ['pending', 'processing', 'partial'],
 } as const;
 
+// Status options for each field
+const STATUS_OPTIONS = {
+  licensing_status: ['enabled', 'disabled', 'pending'],
+  rag_status: ['enabled', 'disabled', 'pending'],
+  training_status: ['enabled', 'disabled', 'pending'],
+};
+
 export default function ContentModal({ open, onClose, content }: ContentModalProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const queryClient = useQueryClient();
+  
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadMessage, setUploadMessage] = useState('');
+  
+  // State for editable status fields
+  const [editMode, setEditMode] = useState(false);
+  const [statusValues, setStatusValues] = useState({
+    licensing_status: '',
+    rag_status: '',
+    training_status: '',
+  });
+  const [hasChanges, setHasChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Initialize status values when content changes
+  useEffect(() => {
+    if (content) {
+      setStatusValues({
+        licensing_status: content.licensing_status || 'disabled',
+        rag_status: content.rag_status || 'disabled',
+        training_status: content.training_status || 'disabled',
+      });
+      setEditMode(false);
+      setHasChanges(false);
+      setSaveError(null);
+      setSaveSuccess(false);
+    }
+  }, [content]);
 
   if (!content) return null;
 
@@ -215,6 +259,76 @@ export default function ContentModal({ open, onClose, content }: ContentModalPro
     );
   };
 
+  const handleStatusChange = (field: keyof typeof statusValues, value: string) => {
+    setStatusValues(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+    setHasChanges(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+  };
+
+  const handleToggleEditMode = () => {
+    if (editMode && hasChanges) {
+      // If exiting edit mode with unsaved changes, confirm
+      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+        setEditMode(false);
+        setHasChanges(false);
+        // Reset to original values
+        setStatusValues({
+          licensing_status: content.licensing_status || 'disabled',
+          rag_status: content.rag_status || 'disabled',
+          training_status: content.training_status || 'disabled',
+        });
+      }
+    } else {
+      setEditMode(!editMode);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    setSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    try {
+      // Save each changed status field
+      const updates = [];
+      
+      if (statusValues.licensing_status !== content.licensing_status) {
+        updates.push(updateContentAttribute(content.content_id, 'licensing_status', statusValues.licensing_status));
+      }
+      if (statusValues.rag_status !== content.rag_status) {
+        updates.push(updateContentAttribute(content.content_id, 'rag_status', statusValues.rag_status));
+      }
+      if (statusValues.training_status !== content.training_status) {
+        updates.push(updateContentAttribute(content.content_id, 'training_status', statusValues.training_status));
+      }
+
+      if (updates.length > 0) {
+        await Promise.all(updates);
+        
+        // Invalidate the content query to refetch updated data
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+        
+        setSaveSuccess(true);
+        setHasChanges(false);
+        setEditMode(false);
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        setEditMode(false);
+        setHasChanges(false);
+      }
+    } catch (error: any) {
+      setSaveError(error.message || 'Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -253,6 +367,18 @@ export default function ContentModal({ open, onClose, content }: ContentModalPro
 
       <DialogContent sx={{ px: 3, py: 0 }}>
         <Stack spacing={3}>
+          {/* Success/Error Messages */}
+          {saveSuccess && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Status changes saved successfully!
+            </Alert>
+          )}
+          {saveError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {saveError}
+            </Alert>
+          )}
+
           {/* Header Section with Image and Basic Info */}
           <Card sx={{ mb: 2 }}>
             <CardContent>
@@ -510,47 +636,120 @@ export default function ContentModal({ open, onClose, content }: ContentModalPro
             </CardContent>
           </Card>
 
-          {/* Status Information */}
+          {/* Status Information - Editable */}
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Status Information
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Status Information
+                </Typography>
+                <Button
+                  startIcon={editMode ? <CloseIcon /> : <EditIcon />}
+                  onClick={handleToggleEditMode}
+                  size="small"
+                  variant="outlined"
+                >
+                  {editMode ? 'Cancel' : 'Edit'}
+                </Button>
+              </Box>
+              
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ flex: 1, minWidth: 200 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Licensing Status
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Commercial Applications
                   </Typography>
-                  <Chip
-                    label={content.licensing_status || 'Unknown'}
-                    size="small"
-                    color={getStatusColor(content.licensing_status)}
-                    sx={{ mt: 0.5 }}
-                  />
+                  {editMode ? (
+                    <FormControl size="small" fullWidth>
+                      <Select
+                        value={statusValues.licensing_status}
+                        onChange={(e) => handleStatusChange('licensing_status', e.target.value)}
+                        displayEmpty
+                      >
+                        {STATUS_OPTIONS.licensing_status.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <Chip
+                      label={statusValues.licensing_status || 'Unknown'}
+                      size="small"
+                      color={getStatusColor(statusValues.licensing_status)}
+                    />
+                  )}
                 </Box>
+                
                 <Box sx={{ flex: 1, minWidth: 200 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    RAG Status
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Reference & Research (RAG)
                   </Typography>
-                  <Chip
-                    label={content.rag_status || 'Unknown'}
-                    size="small"
-                    color={getStatusColor(content.rag_status)}
-                    sx={{ mt: 0.5 }}
-                  />
+                  {editMode ? (
+                    <FormControl size="small" fullWidth>
+                      <Select
+                        value={statusValues.rag_status}
+                        onChange={(e) => handleStatusChange('rag_status', e.target.value)}
+                        displayEmpty
+                      >
+                        {STATUS_OPTIONS.rag_status.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <Chip
+                      label={statusValues.rag_status || 'Unknown'}
+                      size="small"
+                      color={getStatusColor(statusValues.rag_status)}
+                    />
+                  )}
                 </Box>
+                
                 <Box sx={{ flex: 1, minWidth: 200 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Training Status
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    AI Model Training
                   </Typography>
-                  <Chip
-                    label={content.training_status || 'Unknown'}
-                    size="small"
-                    color={getStatusColor(content.training_status)}
-                    sx={{ mt: 0.5 }}
-                  />
+                  {editMode ? (
+                    <FormControl size="small" fullWidth>
+                      <Select
+                        value={statusValues.training_status}
+                        onChange={(e) => handleStatusChange('training_status', e.target.value)}
+                        displayEmpty
+                      >
+                        {STATUS_OPTIONS.training_status.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <Chip
+                      label={statusValues.training_status || 'Unknown'}
+                      size="small"
+                      color={getStatusColor(statusValues.training_status)}
+                    />
+                  )}
                 </Box>
               </Box>
+              
+              {editMode && (
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+                    onClick={handleSaveChanges}
+                    disabled={!hasChanges || saving}
+                    sx={{ minWidth: 150 }}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </Box>
+              )}
             </CardContent>
           </Card>
 

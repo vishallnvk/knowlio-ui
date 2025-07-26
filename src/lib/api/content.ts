@@ -127,8 +127,31 @@ export const useContent = (
     getPreviousPageParam: () => undefined,
   });
 };
+
+/**
+ * Update a single content attribute
+ * @param contentId - The ID of the content to update
+ * @param attribute - The attribute name to update
+ * @param value - The new value for the attribute
+ * @returns Promise with the updated content
+ */
+export const updateContentAttribute = async (
+  contentId: string,
+  attribute: string,
+  value: string
+): Promise<Content> => {
+  // Using PUT method to match backend API
+  const response = await api.put<ApiResponse<Content>>(
+    `/prod/content/attribute/${contentId}/${attribute}`,
+    { value }
+  );
+  
+  return response.data;
+};
+
 // Export default
 export default {
   filterContent,
   useContent,
+  updateContentAttribute,
 };

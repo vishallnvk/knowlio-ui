@@ -62,6 +62,22 @@ export class ApiClient {
     const response: AxiosResponse<T> = await apiClient.delete(url, config);
     return response.data;
   }
+
+  /**
+   * Generic PATCH request
+   * @param url - The endpoint URL
+   * @param data - The request payload
+   * @param config - Optional axios config
+   * @returns Promise with the response data
+   */
+  static async patch<T = any, D = any>(
+    url: string,
+    data?: D,
+    config?: Record<string, any>
+  ): Promise<T> {
+    const response: AxiosResponse<T> = await apiClient.patch(url, data, config);
+    return response.data;
+  }
 }
 
 // Convenience functions for direct usage
@@ -77,6 +93,9 @@ export const api = {
   
   delete: <T = any>(url: string, config?: Record<string, any>) => 
     ApiClient.delete<T>(url, config),
+  
+  patch: <T = any, D = any>(url: string, data?: D, config?: Record<string, any>) => 
+    ApiClient.patch<T, D>(url, data, config),
 };
 
 // Export default as the convenience api object

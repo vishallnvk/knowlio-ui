@@ -60,7 +60,7 @@ export default function LicensingOptionsPage() {
     },
     {
       id: "ai_reference_consent",
-      title: "Reference & Research",
+      title: "Reference & Research (RAG)",
       description:
         "Enable your content for reference purposes and research applications",
       details:
@@ -70,7 +70,7 @@ export default function LicensingOptionsPage() {
     },
     {
       id: "ai_marketplace_consent",
-      title: "Marketplace Applications",
+      title: "Commercial Applications",
       description:
         "Permit your content to be used in marketplace and commercial applications",
       details:
@@ -175,7 +175,7 @@ export default function LicensingOptionsPage() {
               Manage Licensing Options
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Choose how your content can be used by AI systems.
+              Choose how your content can be used by AI systems. Note: Individual content settings will override these default preferences.
             </Typography>
           </Box>
 
