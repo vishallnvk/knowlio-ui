@@ -56,7 +56,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
           pb: 2,
         }}
       >
-        <Typography variant="h6" component="h2" sx={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography variant="h6" component="span" sx={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 1 }}>
           <SupportAgentIcon sx={{ fontSize: 24, color: "text.secondary" }} />
           Contact our support
         </Typography>

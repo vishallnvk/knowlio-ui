@@ -13,6 +13,9 @@ import { useState } from "react";
 import { Box } from "@mui/material";
 import { AppNavBar } from "@/components/AppNavBar/AppNavBar";
 import { usePathname } from "next/navigation";
+import SupportModalProvider from "../components/Support/SupportModalProvider";
+import SupportModal from "../components/Support/SupportModal";
+import { useSupportModal } from "../hooks/useSupportModal";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -51,13 +54,24 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <QueryProvider>
               <AuthProvider>
-                <LayoutWithAuth>{children}</LayoutWithAuth>
+                <SupportModalProvider>
+                  <LayoutWithAuth>{children}</LayoutWithAuth>
+                  <SupportModalRenderer />
+                </SupportModalProvider>
               </AuthProvider>
             </QueryProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
+  );
+}
+
+function SupportModalRenderer() {
+  const { isOpen, closeModal } = useSupportModal();
+  
+  return (
+    <SupportModal isOpen={isOpen} onClose={closeModal} />
   );
 }
 
