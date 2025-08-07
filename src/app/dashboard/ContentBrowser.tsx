@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -30,6 +30,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import ContentList from "./ContentList";
 import AddBooksPage from "./add-books/page";
+import { useQueryClient } from '@tanstack/react-query';
 
 const contentTypes = [
   {
@@ -53,6 +54,7 @@ const licenseStatusOptions = [
 ];
 
 export default function ContentBrowser() {
+  const queryClient = useQueryClient();
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.down("lg")); // Hide filters panel below lg breakpoint
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Hide filters panel below sm breakpoint
@@ -198,6 +200,16 @@ export default function ContentBrowser() {
 
   const isBookTab = contentTypes[selectedTab].value === "BOOK";
   const selectedType = contentTypes[selectedTab];
+
+  // Handle books added callback
+  const handleBooksAdded = () => {
+    // Invalidate and refetch content queries to show newly added books
+    queryClient.invalidateQueries({ queryKey: ['content'] });
+    // Close the modal - defer state update to avoid render phase issues
+    setTimeout(() => {
+      setOnAddBook(false);
+    }, 0);
+  };
 
   // Filter Panel Component (reusable for both sidebar and drawer)
   const FilterPanel = ({ onClose }: { onClose?: () => void }) => (
@@ -730,7 +742,7 @@ export default function ContentBrowser() {
         onClose={() => setOnAddBook(false)}
         sx={{ backdropFilter: "blur(5px)" }}
       >
-        <AddBooksPage />
+        <AddBooksPage onBooksAdded={handleBooksAdded} />
       </Dialog>
     </Box>
   );

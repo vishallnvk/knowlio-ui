@@ -48,7 +48,11 @@ interface CsvBookRecord {
   error?: string;
 }
 
-export default function AddBooksPage() {
+interface AddBooksPageProps {
+  onBooksAdded?: () => void;
+}
+
+export default function AddBooksPage({ onBooksAdded }: AddBooksPageProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
   const [isbn, setIsbn] = useState("");
@@ -80,6 +84,7 @@ export default function AddBooksPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [csvSuccessCount, setCsvSuccessCount] = useState(0);
   const [csvErrorCount, setCsvErrorCount] = useState(0);
+  const [hasAddedBooks, setHasAddedBooks] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -171,6 +176,7 @@ export default function AddBooksPage() {
           addBookToLibrary(book.isbn, {
             onSuccess: () => {
               successCount++;
+              setHasAddedBooks(true);
               console.log(`Successfully added book: ${book.title}`);
               
               // Update progress message
@@ -180,6 +186,10 @@ export default function AddBooksPage() {
                   setSuccessMessage(`Successfully added ${successCount} book(s) to your library`);
                 } else {
                   setSuccessMessage(`Added ${successCount} out of ${totalBooks} book(s) successfully`);
+                }
+                // Notify parent that books were added
+                if (onBooksAdded) {
+                  onBooksAdded();
                 }
               } else {
                 // Still processing
@@ -353,6 +363,7 @@ export default function AddBooksPage() {
           )
         );
         
+        setHasAddedBooks(true);
         setCsvSuccessCount((prev) => {
           const newSuccessCount = prev + 1;
           setCsvErrorCount((errorCount) => {
@@ -365,6 +376,10 @@ export default function AddBooksPage() {
                 setSuccessMessage(`Successfully added ${newSuccessCount} book(s) to your library`);
               } else {
                 setSuccessMessage(`Successfully added ${newSuccessCount} out of ${totalBooks} book(s) to your library`);
+              }
+              // Notify parent that books were added
+              if (onBooksAdded) {
+                onBooksAdded();
               }
             } else {
               // Still processing
