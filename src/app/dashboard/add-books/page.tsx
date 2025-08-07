@@ -78,6 +78,8 @@ export default function AddBooksPage() {
   const [csvRecords, setCsvRecords] = useState<CsvBookRecord[]>([]);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState("");
+  const [csvSuccessCount, setCsvSuccessCount] = useState(0);
+  const [csvErrorCount, setCsvErrorCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -326,6 +328,12 @@ export default function AddBooksPage() {
       return;
     }
 
+    // Reset counters and initialize progress message
+    setCsvSuccessCount(0);
+    setCsvErrorCount(0);
+    const totalBooks = readyRecords.length;
+    setSuccessMessage(`Processing ${totalBooks} book(s)...`);
+
     // Process each ready record
     for (const record of readyRecords) {
       // Update status to adding
@@ -337,14 +345,40 @@ export default function AddBooksPage() {
 
       try {
         await addBook(record.isbn);
-        // Update status to success
+        
+        // Update status to success and increment success counter
         setCsvRecords((prev) =>
           prev.map((r) =>
             r.isbn === record.isbn ? { ...r, status: "success" } : r
           )
         );
+        
+        setCsvSuccessCount((prev) => {
+          const newSuccessCount = prev + 1;
+          setCsvErrorCount((errorCount) => {
+            const completedCount = newSuccessCount + errorCount;
+            
+            // Update progress message
+            if (completedCount === totalBooks) {
+              // All books processed
+              if (errorCount === 0) {
+                setSuccessMessage(`Successfully added ${newSuccessCount} book(s) to your library`);
+              } else {
+                setSuccessMessage(`Successfully added ${newSuccessCount} out of ${totalBooks} book(s) to your library`);
+              }
+            } else {
+              // Still processing
+              setSuccessMessage(`Processing ${totalBooks} book(s)... (${completedCount}/${totalBooks} completed)`);
+            }
+            
+            return errorCount;
+          });
+          
+          return newSuccessCount;
+        });
+        
       } catch (error: any) {
-        // Update status to failed
+        // Update status to failed and increment error counter
         setCsvRecords((prev) =>
           prev.map((r) =>
             r.isbn === record.isbn
@@ -356,15 +390,32 @@ export default function AddBooksPage() {
               : r
           )
         );
+        
+        setCsvErrorCount((prev) => {
+          const newErrorCount = prev + 1;
+          setCsvSuccessCount((successCount) => {
+            const completedCount = successCount + newErrorCount;
+            
+            // Update progress message
+            if (completedCount === totalBooks) {
+              // All books processed
+              if (successCount === 0) {
+                setSuccessMessage(`Failed to add all books`);
+              } else {
+                setSuccessMessage(`Successfully added ${successCount} out of ${totalBooks} book(s) to your library`);
+              }
+            } else {
+              // Still processing
+              setSuccessMessage(`Processing ${totalBooks} book(s)... (${completedCount}/${totalBooks} completed)`);
+            }
+            
+            return successCount;
+          });
+          
+          return newErrorCount;
+        });
       }
     }
-
-    const successCount = csvRecords.filter(
-      (r) => r.status === "success"
-    ).length;
-    setSuccessMessage(
-      `Successfully added ${successCount} out of ${readyRecords.length} book(s) to your library`
-    );
   };
 
   const getStatusChip = (record: CsvBookRecord) => {
